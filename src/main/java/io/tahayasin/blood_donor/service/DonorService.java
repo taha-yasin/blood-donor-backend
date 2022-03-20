@@ -1,0 +1,84 @@
+package io.tahayasin.blood_donor.service;
+
+import io.tahayasin.blood_donor.domain.AppUser;
+import io.tahayasin.blood_donor.domain.Donor;
+import io.tahayasin.blood_donor.model.DonorDTO;
+import io.tahayasin.blood_donor.repos.AppUserRepository;
+import io.tahayasin.blood_donor.repos.DonorRepository;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+
+@Service
+public class DonorService {
+
+    private final DonorRepository donorRepository;
+    private final AppUserRepository appUserRepository;
+
+    public DonorService(final DonorRepository donorRepository,
+            final AppUserRepository appUserRepository) {
+        this.donorRepository = donorRepository;
+        this.appUserRepository = appUserRepository;
+    }
+
+    public List<DonorDTO> findAll() {
+        return donorRepository.findAll()
+                .stream()
+                .map(donor -> mapToDTO(donor, new DonorDTO()))
+                .collect(Collectors.toList());
+    }
+
+    public DonorDTO get(final Long id) {
+        return donorRepository.findById(id)
+                .map(donor -> mapToDTO(donor, new DonorDTO()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    public Long create(final DonorDTO donorDTO) {
+        final Donor donor = new Donor();
+        mapToEntity(donorDTO, donor);
+        return donorRepository.save(donor).getId();
+    }
+
+    public void update(final Long id, final DonorDTO donorDTO) {
+        final Donor donor = donorRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        mapToEntity(donorDTO, donor);
+        donorRepository.save(donor);
+    }
+
+    public void delete(final Long id) {
+        donorRepository.deleteById(id);
+    }
+
+    private DonorDTO mapToDTO(final Donor donor, final DonorDTO donorDTO) {
+        donorDTO.setId(donor.getId());
+        donorDTO.setBloodGroup(donor.getBloodGroup());
+        donorDTO.setLastDonationDate(donor.getLastDonationDate());
+        donorDTO.setStreetAddress(donor.getStreetAddress());
+        donorDTO.setCity(donor.getCity());
+        donorDTO.setState(donor.getState());
+        donorDTO.setPincode(donor.getPincode());
+        donorDTO.setUser(donor.getUser() == null ? null : donor.getUser().getId());
+        return donorDTO;
+    }
+
+    private Donor mapToEntity(final DonorDTO donorDTO, final Donor donor) {
+        donor.setBloodGroup(donorDTO.getBloodGroup());
+        donor.setLastDonationDate(donorDTO.getLastDonationDate());
+        donor.setStreetAddress(donorDTO.getStreetAddress());
+        donor.setCity(donorDTO.getCity());
+        donor.setState(donorDTO.getState());
+        donor.setPincode(donorDTO.getPincode());
+        if (donorDTO.getUser() != null && (donor.getUser() == null || !donor.getUser().getId().equals(donorDTO.getUser()))) {
+            final AppUser user = appUserRepository.findById(donorDTO.getUser())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+            donor.setUser(user);
+        }
+        return donor;
+    }
+
+}
