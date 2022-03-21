@@ -1,5 +1,6 @@
 package io.tahayasin.blood_donor.rest;
 
+import io.tahayasin.blood_donor.domain.AppUser;
 import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.service.AppUserService;
 import java.util.List;
@@ -7,14 +8,8 @@ import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpServerErrorException;
 
 
 @RestController
@@ -53,6 +48,25 @@ public class AppUserController {
     public ResponseEntity<Void> deleteAppUser(@PathVariable final Long id) {
         appUserService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/signin")
+    public String signin(@RequestBody @Valid AppUserDTO appUserDTO) {
+        return appUserService.signin(appUserDTO.getUsername(), appUserDTO.getPassword()).orElseThrow(() ->
+                new HttpServerErrorException(HttpStatus.FORBIDDEN, "Login Failed"));
+    }
+
+    @PostMapping("/signup")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AppUser signup(@RequestBody @Valid AppUserDTO appUserDTO) {
+        return appUserService.signup(appUserDTO.getUsername(),
+                        appUserDTO.getPassword(),
+                        appUserDTO.getFirstName(),
+                        appUserDTO.getLastName(),
+                        appUserDTO.getDateOfBirth(),
+                        appUserDTO.getGender())
+                .orElseThrow(() -> new HttpServerErrorException(HttpStatus.BAD_REQUEST, "User already exists"));
     }
 
 }

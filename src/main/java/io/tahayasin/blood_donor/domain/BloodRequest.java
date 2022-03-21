@@ -59,13 +59,13 @@ public class BloodRequest {
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "donation_request",
-            joinColumns = @JoinColumn(name = "blood_request_request_id"),
+            joinColumns = @JoinColumn(name = "request_id"),
             inverseJoinColumns = @JoinColumn(name = "donor_id")
     )
     private Set<Donor> donors;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id")
-    private AppUser recipient;
+    private AppUser recipientUser;
 
 }

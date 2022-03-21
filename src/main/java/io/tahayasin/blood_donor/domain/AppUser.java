@@ -1,8 +1,9 @@
 package io.tahayasin.blood_donor.domain;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,12 +18,14 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
 public class AppUser {
 
     @Id
@@ -66,9 +69,24 @@ public class AppUser {
     private Set<AppRole> roles;
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
-    private Donor user;
+    private Donor donor;
 
-    @OneToMany(mappedBy = "recipient")
-    private Set<BloodRequest> recipientBloodRequests;
+    @OneToMany(mappedBy = "recipientUser")
+    private Set<BloodRequest> requests;
 
+    public AppUser(String username,
+                   String password,
+                   String firstName,
+                   String lastName,
+                   LocalDate dateOfBirth,
+                   String gender,
+                   AppRole role) {
+        this.username = username;
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.gender = gender;
+        this.roles = new HashSet<>(Arrays.asList(role));
+    }
 }

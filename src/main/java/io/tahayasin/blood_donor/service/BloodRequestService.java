@@ -76,7 +76,7 @@ public class BloodRequestService {
         bloodRequestDTO.setDonationRequests(bloodRequest.getDonors() == null ? null : bloodRequest.getDonors().stream()
                 .map(donor -> donor.getId())
                 .collect(Collectors.toList()));
-        bloodRequestDTO.setRecipient(bloodRequest.getRecipient() == null ? null : bloodRequest.getRecipient().getId());
+        bloodRequestDTO.setRecipient(bloodRequest.getRecipientUser() == null ? null : bloodRequest.getRecipientUser().getId());
         return bloodRequestDTO;
     }
 
@@ -98,10 +98,10 @@ public class BloodRequestService {
             }
             bloodRequest.setDonors(donationRequests.stream().collect(Collectors.toSet()));
         }
-        if (bloodRequestDTO.getRecipient() != null && (bloodRequest.getRecipient() == null || !bloodRequest.getRecipient().getId().equals(bloodRequestDTO.getRecipient()))) {
+        if (bloodRequestDTO.getRecipient() != null && (bloodRequest.getRecipientUser() == null || !bloodRequest.getRecipientUser().getId().equals(bloodRequestDTO.getRecipient()))) {
             final AppUser recipient = appUserRepository.findById(bloodRequestDTO.getRecipient())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "recipient not found"));
-            bloodRequest.setRecipient(recipient);
+            bloodRequest.setRecipientUser(recipient);
         }
         return bloodRequest;
     }
