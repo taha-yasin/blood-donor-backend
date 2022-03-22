@@ -51,22 +51,25 @@ public class AppUserController {
     }
 
     @PostMapping("/signin")
-    public String signin(@RequestBody @Valid AppUserDTO appUserDTO) {
-        return appUserService.signin(appUserDTO.getUsername(), appUserDTO.getPassword()).orElseThrow(() ->
-                new HttpServerErrorException(HttpStatus.FORBIDDEN, "Login Failed"));
+    public ResponseEntity<String> signin(@RequestBody @Valid AppUserDTO appUserDTO) {
+        return ResponseEntity.ok(appUserService.signin(appUserDTO)
+                .orElseThrow(() -> {
+                    return new HttpServerErrorException(HttpStatus.FORBIDDEN,
+                            "Login Failed");
+                }));
     }
 
     @PostMapping("/signup")
     //@PreAuthorize("hasRole('ROLE_ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
-    public AppUser signup(@RequestBody @Valid AppUserDTO appUserDTO) {
-        return appUserService.signup(appUserDTO.getUsername(),
-                        appUserDTO.getPassword(),
-                        appUserDTO.getFirstName(),
-                        appUserDTO.getLastName(),
-                        appUserDTO.getDateOfBirth(),
-                        appUserDTO.getGender())
-                .orElseThrow(() -> new HttpServerErrorException(HttpStatus.BAD_REQUEST, "User already exists"));
+    public ResponseEntity<Long> signup(@RequestBody @Valid AppUserDTO appUserDTO) {
+
+        return new ResponseEntity<>(appUserService.signup(appUserDTO)
+                .orElseThrow(() -> {
+                    return new HttpServerErrorException(HttpStatus.BAD_REQUEST,
+                            "User already exists");
+                }),
+                HttpStatus.ACCEPTED);
     }
 
 }
