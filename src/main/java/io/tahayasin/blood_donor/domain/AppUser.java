@@ -58,7 +58,7 @@ public class AppUser {
     private String lastName;
 
     @Column
-    private LocalDate dateOfBirth;
+    private int age;
 
     @Column
     private String gender;
@@ -77,19 +77,4 @@ public class AppUser {
     @OneToMany(mappedBy = "recipientUser")
     private Set<BloodRequest> requests;
 
-    public AppUser(String username,
-                   String password,
-                   String firstName,
-                   String lastName,
-                   LocalDate dateOfBirth,
-                   String gender,
-                   AppRole role) {
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.dateOfBirth = dateOfBirth;
-        this.gender = gender;
-        this.roles = new HashSet<>(Arrays.asList(role));
-    }
 }

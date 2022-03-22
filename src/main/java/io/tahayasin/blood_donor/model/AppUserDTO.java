@@ -29,7 +29,7 @@ public class AppUserDTO {
     @Size(max = 255)
     private String lastName;
 
-    private LocalDate dateOfBirth;
+    private int age;
 
     @Size(max = 255)
     private String gender;

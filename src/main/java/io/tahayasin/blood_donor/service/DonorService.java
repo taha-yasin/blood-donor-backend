@@ -16,15 +16,16 @@ import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 
 @Service
+@Transactional
 public class DonorService {
 
     private final DonorRepository donorRepository;
     private final AppUserRepository appUserRepository;
-
     private final AppRoleRepository appRoleRepository;
     private final AppUserService appUserService;
 
@@ -72,6 +73,7 @@ public class DonorService {
         donorDTO.setId(donor.getId());
         donorDTO.setBloodGroup(donor.getBloodGroup());
         donorDTO.setLastDonationDate(donor.getLastDonationDate());
+        donorDTO.setWhatsapp(donor.getWhatsapp());
         donorDTO.setStreetAddress(donor.getStreetAddress());
         donorDTO.setCity(donor.getCity());
         donorDTO.setState(donor.getState());
@@ -83,6 +85,7 @@ public class DonorService {
     private Donor mapToEntity(final DonorDTO donorDTO, final Donor donor) {
         donor.setBloodGroup(donorDTO.getBloodGroup());
         donor.setLastDonationDate(donorDTO.getLastDonationDate());
+        donor.setWhatsapp(donorDTO.getWhatsapp());
         donor.setStreetAddress(donorDTO.getStreetAddress());
         donor.setCity(donorDTO.getCity());
         donor.setState(donorDTO.getState());

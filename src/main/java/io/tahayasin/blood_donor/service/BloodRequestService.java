@@ -10,14 +10,19 @@ import io.tahayasin.blood_donor.repos.DonorRepository;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 
-@Transactional
 @Service
+@Transactional
 public class BloodRequestService {
 
     private final BloodRequestRepository bloodRequestRepository;
@@ -104,6 +109,21 @@ public class BloodRequestService {
             bloodRequest.setRecipientUser(recipient);
         }
         return bloodRequest;
+    }
+
+    public Page<Donor> findDonor(String bloodGroup,
+                                 String city,
+                                 String pincode,
+                                 int pageNo,
+                                 int pageSize,
+                                 String sortBy) {
+        Pageable pageOfDonors = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
+        Page<Donor> donors = donorRepository.findByBloodGroupAndCityOrPincode(bloodGroup,
+                city,
+                pincode,
+                pageOfDonors);
+
+        return donors;
     }
 
 }
