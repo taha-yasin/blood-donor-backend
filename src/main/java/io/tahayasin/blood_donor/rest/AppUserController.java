@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -54,7 +55,7 @@ public class AppUserController {
     public ResponseEntity<String> signin(@RequestBody @Valid AppUserDTO appUserDTO) {
         return ResponseEntity.ok(appUserService.signin(appUserDTO)
                 .orElseThrow(() -> {
-                    return new HttpServerErrorException(HttpStatus.FORBIDDEN,
+                    return new ResponseStatusException(HttpStatus.FORBIDDEN,
                             "Login Failed");
                 }));
     }
@@ -66,7 +67,7 @@ public class AppUserController {
 
         return new ResponseEntity<>(appUserService.signup(appUserDTO)
                 .orElseThrow(() -> {
-                    return new HttpServerErrorException(HttpStatus.BAD_REQUEST,
+                    return new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "User already exists");
                 }),
                 HttpStatus.ACCEPTED);

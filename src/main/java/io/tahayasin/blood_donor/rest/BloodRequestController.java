@@ -1,21 +1,20 @@
 package io.tahayasin.blood_donor.rest;
 
+import io.tahayasin.blood_donor.domain.Donor;
 import io.tahayasin.blood_donor.model.BloodRequestDTO;
+import io.tahayasin.blood_donor.model.DonorPageDTO;
+import io.tahayasin.blood_donor.model.FindDonorDTO;
 import io.tahayasin.blood_donor.service.BloodRequestService;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.validation.Valid;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -55,6 +54,28 @@ public class BloodRequestController {
     public ResponseEntity<Void> deleteBloodRequest(@PathVariable final UUID requestId) {
         bloodRequestService.delete(requestId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/find-donor")
+    @ResponseStatus(HttpStatus.OK)
+    public FindDonorDTO findDonor(@RequestParam String bloodGroup,
+                                  @RequestParam String city,
+                                  @RequestParam String pincode,
+                                  @RequestParam int pageNo) {
+        Page<Donor> page = bloodRequestService.findDonor(bloodGroup,
+                city,
+                pincode,
+                pageNo,
+                10,
+                "streetAddres");
+
+        List<DonorPageDTO> donors = page.getContent().stream().map(DonorPageDTO::new).collect(Collectors.toList());
+
+        FindDonorDTO donorsPage = new FindDonorDTO(page.getTotalPages(),
+                page.getTotalElements(),
+                donors);
+
+        return  donorsPage;
     }
 
 }

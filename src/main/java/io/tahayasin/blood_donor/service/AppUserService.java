@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
-import javax.transaction.Transactional;
 
 import io.tahayasin.blood_donor.security.JwtProvider;
 import org.springframework.http.HttpHeaders;
@@ -21,20 +20,19 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 
-@Transactional
 @Service
+@Transactional
 public class AppUserService {
 
     private final AppUserRepository appUserRepository;
     private final AppRoleRepository appRoleRepository;
-
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
-
     private final HttpServletRequest request;
 
     public AppUserService(final AppUserRepository appUserRepository,
@@ -87,7 +85,7 @@ public class AppUserService {
         appUserDTO.setPassword(appUser.getPassword());
         appUserDTO.setFirstName(appUser.getFirstName());
         appUserDTO.setLastName(appUser.getLastName());
-        appUserDTO.setDateOfBirth(appUser.getDateOfBirth());
+        appUserDTO.setAge(appUser.getAge());
         appUserDTO.setGender(appUser.getGender());
         appUserDTO.setUserRoles(appUser.getRoles() == null ? null : appUser.getRoles().stream()
                 .map(appRole -> appRole.getId())
@@ -100,7 +98,7 @@ public class AppUserService {
         appUser.setPassword(passwordEncoder.encode(appUserDTO.getPassword()));
         appUser.setFirstName(appUserDTO.getFirstName());
         appUser.setLastName(appUserDTO.getLastName());
-        appUser.setDateOfBirth(appUserDTO.getDateOfBirth());
+        appUser.setAge(appUserDTO.getAge());
         appUser.setGender(appUserDTO.getGender());
         if (appUserDTO.getUserRoles() != null) {
             final List<AppRole> userRoles = appRoleRepository.findAllById(appUserDTO.getUserRoles());

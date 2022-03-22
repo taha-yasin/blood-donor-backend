@@ -21,7 +21,7 @@ public class DonorDTO {
 
     @NotNull
     @Size(max = 255)
-    private String whatsAppNumber;
+    private String whatsapp;
 
     @Size(max = 255)
     private String streetAddress;
@@ -34,7 +34,7 @@ public class DonorDTO {
     private String state;
 
     @NotNull
-    private Long pincode;
+    private String pincode;
 
     private Long user;
 

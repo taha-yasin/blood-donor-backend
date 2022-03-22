@@ -47,7 +47,7 @@ public class Donor {
     private LocalDate lastDonationDate;
 
     @Column
-    private String whatsAppNumber;
+    private String whatsapp;
 
     @Column
     private String streetAddress;
@@ -59,7 +59,7 @@ public class Donor {
     private String state;
 
     @Column(nullable = false)
-    private Long pincode;
+    private String pincode;
 
     @OneToOne
     @JoinColumn(name = "user_id")
@@ -68,21 +68,4 @@ public class Donor {
     @ManyToMany(mappedBy = "donors")
     private Set<BloodRequest> bloodRequests;
 
-//    public Donor(String bloodGroup,
-//                 LocalDate lastDonationDate,
-//                 String streetAddress,
-//                 String city,
-//                 String state,
-//                 Long pincode,
-//                 AppUser user
-//                 /*Set<BloodRequest> bloodRequests*/) {
-//        this.bloodGroup = bloodGroup;
-//        this.lastDonationDate = lastDonationDate;
-//        this.streetAddress = streetAddress;
-//        this.city = city;
-//        this.state = state;
-//        this.pincode = pincode;
-//        this.user = user;
-//        this.bloodRequests = new HashSet<>();
-//    }
 }
