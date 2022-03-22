@@ -1,13 +1,20 @@
 package io.tahayasin.blood_donor.service;
 
+import io.tahayasin.blood_donor.domain.AppRole;
 import io.tahayasin.blood_donor.domain.AppUser;
 import io.tahayasin.blood_donor.domain.Donor;
+import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.model.DonorDTO;
+import io.tahayasin.blood_donor.model.DonorRegistrationDTO;
+import io.tahayasin.blood_donor.repos.AppRoleRepository;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
 import io.tahayasin.blood_donor.repos.DonorRepository;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -18,10 +25,20 @@ public class DonorService {
     private final DonorRepository donorRepository;
     private final AppUserRepository appUserRepository;
 
+    private final AppRoleRepository appRoleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AppUserService appUserService;
+
     public DonorService(final DonorRepository donorRepository,
-            final AppUserRepository appUserRepository) {
+                        final AppUserRepository appUserRepository,
+                        final AppRoleRepository appRoleRepository,
+                        final PasswordEncoder passwordEncoder,
+                        final AppUserService appUserService) {
         this.donorRepository = donorRepository;
         this.appUserRepository = appUserRepository;
+        this.appRoleRepository = appRoleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.appUserService = appUserService;
     }
 
     public List<DonorDTO> findAll() {
@@ -79,6 +96,27 @@ public class DonorService {
             donor.setUser(user);
         }
         return donor;
+    }
+
+    public Long register(final DonorRegistrationDTO donorRegistrationDTO) {
+        //LOGGER.info("New user attempting to sign in");
+        AppUserDTO appUserDTO = donorRegistrationDTO.getAppUserDTO();
+        DonorDTO donorDTO = donorRegistrationDTO.getDonorDTO();
+        if(!appUserRepository.findByUsername(appUserDTO.getUsername()).isPresent()) {
+            Long userId = appUserService.create(appUserDTO);
+            AppUser appUser = appUserRepository.findById(userId).get();
+            AppRole role_donor = appRoleRepository.findByRoleName("ROLE_DONOR").get();
+            appUser.getRoles().add(role_donor);
+
+            donorDTO.setUser(userId);
+        }
+        else {
+            AppUser appUser = appUserRepository.findByUsername(appUserDTO.getUsername()).get();
+            donorDTO.setUser(appUser.getId());
+        }
+
+        Long donorId = create(donorDTO);
+        return donorId;
     }
 
 }

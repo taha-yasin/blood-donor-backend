@@ -17,6 +17,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +28,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class AppUser {
 
     @Id
@@ -66,7 +69,7 @@ public class AppUser {
             joinColumns = @JoinColumn(name = "app_user_id"),
             inverseJoinColumns = @JoinColumn(name = "app_role_id")
     )
-    private Set<AppRole> roles;
+    private Set<AppRole> roles = new HashSet<>();
 
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Donor donor;

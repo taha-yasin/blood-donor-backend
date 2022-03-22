@@ -1,6 +1,7 @@
 package io.tahayasin.blood_donor.domain;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,13 +12,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
+
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Donor {
 
     @Id
@@ -41,6 +47,9 @@ public class Donor {
     private LocalDate lastDonationDate;
 
     @Column
+    private String whatsAppNumber;
+
+    @Column
     private String streetAddress;
 
     @Column(nullable = false)
@@ -59,4 +68,21 @@ public class Donor {
     @ManyToMany(mappedBy = "donors")
     private Set<BloodRequest> bloodRequests;
 
+//    public Donor(String bloodGroup,
+//                 LocalDate lastDonationDate,
+//                 String streetAddress,
+//                 String city,
+//                 String state,
+//                 Long pincode,
+//                 AppUser user
+//                 /*Set<BloodRequest> bloodRequests*/) {
+//        this.bloodGroup = bloodGroup;
+//        this.lastDonationDate = lastDonationDate;
+//        this.streetAddress = streetAddress;
+//        this.city = city;
+//        this.state = state;
+//        this.pincode = pincode;
+//        this.user = user;
+//        this.bloodRequests = new HashSet<>();
+//    }
 }
