@@ -26,18 +26,15 @@ public class DonorService {
     private final AppUserRepository appUserRepository;
 
     private final AppRoleRepository appRoleRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AppUserService appUserService;
 
     public DonorService(final DonorRepository donorRepository,
                         final AppUserRepository appUserRepository,
                         final AppRoleRepository appRoleRepository,
-                        final PasswordEncoder passwordEncoder,
                         final AppUserService appUserService) {
         this.donorRepository = donorRepository;
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
-        this.passwordEncoder = passwordEncoder;
         this.appUserService = appUserService;
     }
 
@@ -102,17 +99,20 @@ public class DonorService {
         //LOGGER.info("New user attempting to sign in");
         AppUserDTO appUserDTO = donorRegistrationDTO.getAppUserDTO();
         DonorDTO donorDTO = donorRegistrationDTO.getDonorDTO();
+        Optional<AppRole> role = appRoleRepository.findByRoleName("ROLE_DONOR");
+
         if(!appUserRepository.findByUsername(appUserDTO.getUsername()).isPresent()) {
             Long userId = appUserService.create(appUserDTO);
-            AppUser appUser = appUserRepository.findById(userId).get();
-            AppRole role_donor = appRoleRepository.findByRoleName("ROLE_DONOR").get();
-            appUser.getRoles().add(role_donor);
-
+            Optional<AppUser> appUser = appUserRepository.findById(userId);
+            appUser.get().getRoles().add(role.get());
             donorDTO.setUser(userId);
         }
         else {
-            AppUser appUser = appUserRepository.findByUsername(appUserDTO.getUsername()).get();
-            donorDTO.setUser(appUser.getId());
+            Optional<AppUser> appUser = appUserRepository.findByUsername(appUserDTO.getUsername());
+            if(appUser.get().getRoles().contains(role.get()))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account with username already exist");
+
+            donorDTO.setUser(appUser.get().getId());
         }
 
         Long donorId = create(donorDTO);

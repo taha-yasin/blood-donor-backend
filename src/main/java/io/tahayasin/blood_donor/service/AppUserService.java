@@ -97,7 +97,7 @@ public class AppUserService {
 
     private AppUser mapToEntity(final AppUserDTO appUserDTO, final AppUser appUser) {
         appUser.setUsername(appUserDTO.getUsername());
-        appUser.setPassword(appUserDTO.getPassword());
+        appUser.setPassword(passwordEncoder.encode(appUserDTO.getPassword()));
         appUser.setFirstName(appUserDTO.getFirstName());
         appUser.setLastName(appUserDTO.getLastName());
         appUser.setDateOfBirth(appUserDTO.getDateOfBirth());
@@ -112,54 +112,43 @@ public class AppUserService {
         return appUser;
     }
 
-    public Optional<String> signin(String username, String password) {
+    public Optional<String> signin(final AppUserDTO appUserDTO) {
         //LOGGER.info("New user attempting to sign in");
         Optional<String> token = Optional.empty();
-        Optional<AppUser> user = appUserRepository.findByUsername(username);
+        Optional<AppUser> user = appUserRepository.findByUsername(appUserDTO.getUsername());
         if (user.isPresent()) {
             try {
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-                token = Optional.of(jwtProvider.createToken(username, user.get().getRoles()));
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(appUserDTO.getUsername(), appUserDTO.getPassword()));
+                token = Optional.of(jwtProvider.createToken(appUserDTO.getUsername(), user.get().getRoles()));
             } catch (AuthenticationException e){
                 //LOGGER.info("Log in failed for user {}", username);
-
             }
         }
         return token;
     }
 
-    public Optional<AppUser> signup(String username,
-                                    String password,
-                                    String firstName,
-                                    String lastName,
-                                    LocalDate dateOfBirth,
-                                    String gender) {
+    public Optional<Long> signup(final AppUserDTO appUserDTO) {
         //LOGGER.info("New user attempting to sign in");
-        Optional<AppUser> user = Optional.empty();
-        if (!appUserRepository.findByUsername(username).isPresent()) {
+        Optional<Long> userId = Optional.empty();
+        if (!appUserRepository.findByUsername(appUserDTO.getUsername()).isPresent()) {
             Optional<AppRole> role = appRoleRepository.findByRoleName("ROLE_USER");
-            user = Optional.of(appUserRepository.save(new AppUser(username,
-                    passwordEncoder.encode(password),
-                    firstName,
-                    lastName,
-                    dateOfBirth,
-                    gender,
-                    role.get())));
+            userId = Optional.of(create(appUserDTO));
         }
-        return user;
+        return userId;
     }
 
-    public Long getAuthenticatedUserId() {
+    public Optional<Long> getAuthenticatedUserId() {
 
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
+        Optional<Long> userId = Optional.empty();
         Optional<String> token = Optional.empty();
         if (authHeader != null && authHeader.startsWith("Bearer")) {
             token = Optional.of(authHeader.replace("Bearer", "").trim());
         }
 
         String username = jwtProvider.getUsername(token.get());
-        Long userId = appUserRepository.findIdByName(username);
+        userId = Optional.of(appUserRepository.findIdByName(username));
 
         return userId;
     }
