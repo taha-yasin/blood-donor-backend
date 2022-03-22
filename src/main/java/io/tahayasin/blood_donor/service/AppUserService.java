@@ -5,10 +5,21 @@ import io.tahayasin.blood_donor.domain.AppUser;
 import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.repos.AppRoleRepository;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
+
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
+
+import io.tahayasin.blood_donor.security.JwtProvider;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,10 +31,24 @@ public class AppUserService {
     private final AppUserRepository appUserRepository;
     private final AppRoleRepository appRoleRepository;
 
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtProvider jwtProvider;
+
+    private final HttpServletRequest request;
+
     public AppUserService(final AppUserRepository appUserRepository,
-            final AppRoleRepository appRoleRepository) {
+                          final AppRoleRepository appRoleRepository,
+                          PasswordEncoder passwordEncoder,
+                          AuthenticationManager authenticationManager,
+                          JwtProvider jwtProvider,
+                          HttpServletRequest request) {
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtProvider = jwtProvider;
+        this.request = request;
     }
 
     public List<AppUserDTO> findAll() {
@@ -85,6 +110,58 @@ public class AppUserService {
             appUser.setRoles(userRoles.stream().collect(Collectors.toSet()));
         }
         return appUser;
+    }
+
+    public Optional<String> signin(String username, String password) {
+        //LOGGER.info("New user attempting to sign in");
+        Optional<String> token = Optional.empty();
+        Optional<AppUser> user = appUserRepository.findByUsername(username);
+        if (user.isPresent()) {
+            try {
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+                token = Optional.of(jwtProvider.createToken(username, user.get().getRoles()));
+            } catch (AuthenticationException e){
+                //LOGGER.info("Log in failed for user {}", username);
+
+            }
+        }
+        return token;
+    }
+
+    public Optional<AppUser> signup(String username,
+                                    String password,
+                                    String firstName,
+                                    String lastName,
+                                    LocalDate dateOfBirth,
+                                    String gender) {
+        //LOGGER.info("New user attempting to sign in");
+        Optional<AppUser> user = Optional.empty();
+        if (!appUserRepository.findByUsername(username).isPresent()) {
+            Optional<AppRole> role = appRoleRepository.findByRoleName("ROLE_USER");
+            user = Optional.of(appUserRepository.save(new AppUser(username,
+                    passwordEncoder.encode(password),
+                    firstName,
+                    lastName,
+                    dateOfBirth,
+                    gender,
+                    role.get())));
+        }
+        return user;
+    }
+
+    public Long getAuthenticatedUserId() {
+
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        Optional<String> token = Optional.empty();
+        if (authHeader != null && authHeader.startsWith("Bearer")) {
+            token = Optional.of(authHeader.replace("Bearer", "").trim());
+        }
+
+        String username = jwtProvider.getUsername(token.get());
+        Long userId = appUserRepository.findIdByName(username);
+
+        return userId;
     }
 
 }

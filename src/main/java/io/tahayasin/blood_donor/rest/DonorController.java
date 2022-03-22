@@ -1,20 +1,16 @@
 package io.tahayasin.blood_donor.rest;
 
+import io.tahayasin.blood_donor.domain.Donor;
 import io.tahayasin.blood_donor.model.DonorDTO;
+import io.tahayasin.blood_donor.model.DonorRegistrationDTO;
 import io.tahayasin.blood_donor.service.DonorService;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpServerErrorException;
 
 
 @RestController
@@ -53,6 +49,14 @@ public class DonorController {
     public ResponseEntity<Void> deleteDonor(@PathVariable final Long id) {
         donorService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/register")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Long> registerDonor(@RequestBody @Valid DonorRegistrationDTO donorRegistrationDTO) {
+
+        return new ResponseEntity<>(donorService.register(donorRegistrationDTO), HttpStatus.CREATED);
     }
 
 }

@@ -19,6 +19,10 @@ public class DonorDTO {
 
     private LocalDate lastDonationDate;
 
+    @NotNull
+    @Size(max = 255)
+    private String whatsAppNumber;
+
     @Size(max = 255)
     private String streetAddress;
 
