@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 
 @RestController
@@ -56,6 +57,17 @@ public class BloodRequestController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/request")
+    public ResponseEntity<UUID> requestBlood(@RequestBody @Valid final BloodRequestDTO bloodRequestDTO) {
+
+        return new ResponseEntity<>(bloodRequestService.request(bloodRequestDTO)
+                .orElseThrow(() -> {
+                    return new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "ERROR: request failed");
+                }),
+                HttpStatus.CREATED);
+    }
+
     @GetMapping("/find-donor")
     @ResponseStatus(HttpStatus.OK)
     public FindDonorDTO findDonor(@RequestParam String bloodGroup,
@@ -67,7 +79,7 @@ public class BloodRequestController {
                 pincode,
                 pageNo,
                 10,
-                "streetAddres");
+                "streetAddress");
 
         List<DonorPageDTO> donors = page.getContent().stream().map(DonorPageDTO::new).collect(Collectors.toList());
 
