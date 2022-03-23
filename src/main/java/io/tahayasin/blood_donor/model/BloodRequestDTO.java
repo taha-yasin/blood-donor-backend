@@ -25,7 +25,7 @@ public class BloodRequestDTO {
 
     @NotNull
     @Size(max = 255)
-    private String whatsAppNumber;
+    private String whatsapp;
 
     @NotNull
     @Size(max = 255)
@@ -46,7 +46,7 @@ public class BloodRequestDTO {
 
     private Boolean isActive;
 
-    private List<Long> donationRequests;
+    private List<Long> donors;
 
     private Long recipient;
 
