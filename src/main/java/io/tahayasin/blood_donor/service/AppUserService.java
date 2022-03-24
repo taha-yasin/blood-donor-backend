@@ -6,7 +6,6 @@ import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.repos.AppRoleRepository;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -85,7 +84,7 @@ public class AppUserService {
         appUserDTO.setPassword(appUser.getPassword());
         appUserDTO.setFirstName(appUser.getFirstName());
         appUserDTO.setLastName(appUser.getLastName());
-        appUserDTO.setAge(appUser.getAge());
+        appUserDTO.setDateOfBirth(appUser.getDataOfBirth());
         appUserDTO.setGender(appUser.getGender());
         appUserDTO.setUserRoles(appUser.getRoles() == null ? null : appUser.getRoles().stream()
                 .map(appRole -> appRole.getId())
@@ -98,7 +97,7 @@ public class AppUserService {
         appUser.setPassword(passwordEncoder.encode(appUserDTO.getPassword()));
         appUser.setFirstName(appUserDTO.getFirstName());
         appUser.setLastName(appUserDTO.getLastName());
-        appUser.setAge(appUserDTO.getAge());
+        appUser.setDataOfBirth(appUserDTO.getDateOfBirth());
         appUser.setGender(appUserDTO.getGender());
         if (appUserDTO.getUserRoles() != null) {
             final List<AppRole> userRoles = appRoleRepository.findAllById(appUserDTO.getUserRoles());
