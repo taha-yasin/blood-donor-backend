@@ -2,7 +2,6 @@ package io.tahayasin.blood_donor.model;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import lombok.Getter;
@@ -29,7 +28,7 @@ public class AppUserDTO {
     @Size(max = 255)
     private String lastName;
 
-    private int age;
+    private LocalDate dateOfBirth;
 
     @Size(max = 255)
     private String gender;

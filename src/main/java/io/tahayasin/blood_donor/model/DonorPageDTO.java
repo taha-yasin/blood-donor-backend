@@ -1,7 +1,6 @@
 package io.tahayasin.blood_donor.model;
 
 import io.tahayasin.blood_donor.domain.Donor;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
