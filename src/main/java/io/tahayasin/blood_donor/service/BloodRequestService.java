@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class BloodRequestService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BloodRequestService.class);
     private final BloodRequestRepository bloodRequestRepository;
     private final DonorRepository donorRepository;
     private final AppUserRepository appUserRepository;
@@ -137,6 +140,7 @@ public class BloodRequestService {
     }
 
     public Optional<UUID> request(final BloodRequestDTO bloodRequestDTO) {
+        LOGGER.info("Attempting to create blood request");
         Long recipientId = appUserService.getAuthenticatedUserId()
                 .orElseThrow(()-> {
                     return new ResponseStatusException(HttpStatus.FORBIDDEN,

@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import io.tahayasin.blood_donor.security.JwtProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class AppUserService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppUserService.class);
     private final AppUserRepository appUserRepository;
     private final AppRoleRepository appRoleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -110,22 +113,22 @@ public class AppUserService {
     }
 
     public Optional<String> signin(final AppUserDTO appUserDTO) {
-        //LOGGER.info("New user attempting to sign in");
+        LOGGER.info("New user attempting to signin");
         Optional<String> token = Optional.empty();
         Optional<AppUser> user = appUserRepository.findByUsername(appUserDTO.getUsername());
         if (user.isPresent()) {
             try {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(appUserDTO.getUsername(), appUserDTO.getPassword()));
                 token = Optional.of(jwtProvider.createToken(appUserDTO.getUsername(), user.get().getRoles()));
-            } catch (AuthenticationException e){
-                //LOGGER.info("Log in failed for user {}", username);
+            } catch (AuthenticationException exception) {
+                LOGGER.info("Log in failed for user {}", appUserDTO.getUsername());
             }
         }
         return token;
     }
 
     public Optional<Long> signup(final AppUserDTO appUserDTO) {
-        //LOGGER.info("New user attempting to sign in");
+        LOGGER.info("New user attempting to signup");
         Optional<Long> userId = Optional.empty();
         if (!appUserRepository.findByUsername(appUserDTO.getUsername()).isPresent()) {
             Optional<AppRole> role = appRoleRepository.findByRoleName("ROLE_USER");
@@ -135,7 +138,7 @@ public class AppUserService {
     }
 
     public Optional<Long> getAuthenticatedUserId() {
-
+        LOGGER.info("Getting userId of user currently logged in");
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         Optional<Long> userId = Optional.empty();
