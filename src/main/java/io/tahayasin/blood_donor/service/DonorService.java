@@ -13,6 +13,9 @@ import io.tahayasin.blood_donor.repos.DonorRepository;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class DonorService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DonorService.class);
     private final DonorRepository donorRepository;
     private final AppUserRepository appUserRepository;
     private final AppRoleRepository appRoleRepository;
@@ -99,12 +103,14 @@ public class DonorService {
     }
 
     public Long register(final DonorRegistrationDTO donorRegistrationDTO) {
-        //LOGGER.info("New user attempting to sign in");
+        LOGGER.info("New user attempting to register as donor");
         AppUserDTO appUserDTO = donorRegistrationDTO.getAppUserDTO();
         DonorDTO donorDTO = donorRegistrationDTO.getDonorDTO();
         Optional<AppRole> role = appRoleRepository.findByRoleName("ROLE_DONOR");
 
         if(!appUserRepository.findByUsername(appUserDTO.getUsername()).isPresent()) {
+            LOGGER.info("Creating new user..");
+
             Long userId = appUserService.create(appUserDTO);
             Optional<AppUser> appUser = appUserRepository.findById(userId);
             appUser.get().getRoles().add(role.get());
