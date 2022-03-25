@@ -7,10 +7,15 @@ import io.tahayasin.blood_donor.model.BloodRequestDTO;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
 import io.tahayasin.blood_donor.repos.BloodRequestRepository;
 import io.tahayasin.blood_donor.repos.DonorRepository;
+
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,15 +30,20 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class BloodRequestService {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BloodRequestService.class);
     private final BloodRequestRepository bloodRequestRepository;
     private final DonorRepository donorRepository;
     private final AppUserRepository appUserRepository;
+    private final AppUserService appUserService;
 
     public BloodRequestService(final BloodRequestRepository bloodRequestRepository,
-            final DonorRepository donorRepository, final AppUserRepository appUserRepository) {
+                               final DonorRepository donorRepository,
+                               final AppUserRepository appUserRepository,
+                               final AppUserService appUserService) {
         this.bloodRequestRepository = bloodRequestRepository;
         this.donorRepository = donorRepository;
         this.appUserRepository = appUserRepository;
+        this.appUserService = appUserService;
     }
 
     public List<BloodRequestDTO> findAll() {
@@ -71,14 +81,14 @@ public class BloodRequestService {
         bloodRequestDTO.setRequestId(bloodRequest.getRequestId());
         bloodRequestDTO.setPatientName(bloodRequest.getPatientName());
         bloodRequestDTO.setRequiredBloodGroup(bloodRequest.getRequiredBloodGroup());
-        bloodRequestDTO.setWhatsAppNumber(bloodRequest.getWhatsAppNumber());
+        bloodRequestDTO.setWhatsapp(bloodRequest.getWhatsapp());
         bloodRequestDTO.setStreetAddress(bloodRequest.getStreetAddress());
         bloodRequestDTO.setCity(bloodRequest.getCity());
         bloodRequestDTO.setGovernmentId(bloodRequest.getGovernmentId());
         bloodRequestDTO.setGeneratedAt(bloodRequest.getGeneratedAt());
         bloodRequestDTO.setStatus(bloodRequest.getStatus());
         bloodRequestDTO.setIsActive(bloodRequest.getIsActive());
-        bloodRequestDTO.setDonationRequests(bloodRequest.getDonors() == null ? null : bloodRequest.getDonors().stream()
+        bloodRequestDTO.setDonors(bloodRequest.getDonors() == null ? null : bloodRequest.getDonors().stream()
                 .map(donor -> donor.getId())
                 .collect(Collectors.toList()));
         bloodRequestDTO.setRecipient(bloodRequest.getRecipientUser() == null ? null : bloodRequest.getRecipientUser().getId());
@@ -89,19 +99,22 @@ public class BloodRequestService {
             final BloodRequest bloodRequest) {
         bloodRequest.setPatientName(bloodRequestDTO.getPatientName());
         bloodRequest.setRequiredBloodGroup(bloodRequestDTO.getRequiredBloodGroup());
-        bloodRequest.setWhatsAppNumber(bloodRequestDTO.getWhatsAppNumber());
+        bloodRequest.setWhatsapp(bloodRequestDTO.getWhatsapp());
         bloodRequest.setStreetAddress(bloodRequestDTO.getStreetAddress());
         bloodRequest.setCity(bloodRequestDTO.getCity());
         bloodRequest.setGovernmentId(bloodRequestDTO.getGovernmentId());
-        bloodRequest.setGeneratedAt(bloodRequestDTO.getGeneratedAt());
-        bloodRequest.setStatus(bloodRequestDTO.getStatus());
-        bloodRequest.setIsActive(bloodRequestDTO.getIsActive());
-        if (bloodRequestDTO.getDonationRequests() != null) {
-            final List<Donor> donationRequests = donorRepository.findAllById(bloodRequestDTO.getDonationRequests());
-            if (donationRequests.size() != bloodRequestDTO.getDonationRequests().size()) {
+//        bloodRequest.setGeneratedAt(bloodRequestDTO.getGeneratedAt());
+        bloodRequest.setGeneratedAt(LocalDateTime.now());
+//        bloodRequest.setStatus(bloodRequestDTO.getStatus());
+        bloodRequest.setStatus("PENDING: waiting for donor's response");
+//        bloodRequest.setIsActive(bloodRequestDTO.getIsActive());
+        bloodRequest.setIsActive(true);
+        if (bloodRequestDTO.getDonors() != null) {
+            final List<Donor> donors = donorRepository.findAllById(bloodRequestDTO.getDonors());
+            if (donors.size() != bloodRequestDTO.getDonors().size()) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "one of donationRequests not found");
             }
-            bloodRequest.setDonors(donationRequests.stream().collect(Collectors.toSet()));
+            bloodRequest.setDonors(donors.stream().collect(Collectors.toSet()));
         }
         if (bloodRequestDTO.getRecipient() != null && (bloodRequest.getRecipientUser() == null || !bloodRequest.getRecipientUser().getId().equals(bloodRequestDTO.getRecipient()))) {
             final AppUser recipient = appUserRepository.findById(bloodRequestDTO.getRecipient())
@@ -124,6 +137,21 @@ public class BloodRequestService {
                 pageOfDonors);
 
         return donors;
+    }
+
+    public Optional<UUID> request(final BloodRequestDTO bloodRequestDTO) {
+        LOGGER.info("Attempting to create blood request");
+        Long recipientId = appUserService.getAuthenticatedUserId()
+                .orElseThrow(()-> {
+                    return new ResponseStatusException(HttpStatus.FORBIDDEN,
+                            "Login or Signup to continue..");
+                });
+
+        bloodRequestDTO.setRecipient(recipientId);
+        Optional<UUID> requestId = Optional.empty();
+        requestId = Optional.of(create(bloodRequestDTO));
+
+        return requestId;
     }
 
 }

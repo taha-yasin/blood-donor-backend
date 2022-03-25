@@ -42,27 +42,6 @@ public class AppUserDetailsService implements UserDetailsService {
                 .credentialsExpired(false)
                 .disabled(false)
                 .build();
-
-
-//        AppUser appUser = appUserRepository.findByUsername(username);
-//        if(appUser == null){
-//            throw new UsernameNotFoundException("cannot find username: " + username);
-//        }
-//
-//        List<AppRole> appRoles = this.appRoleRepository.findByUsername(username);
-//
-//        return new AppUserPrincipal(appUser, appRoles);
-
-
-
-//        AppUser appUser = appUserRepository.findByUsername(userName).orElseThrow(() ->
-//                new UsernameNotFoundException(String.format("User with name %s does not exist", userName)));
-
-//        Collection<SimpleGrantedAuthority> grantedAuthorities = new HashSet<>();
-//        appUser.getRoles().forEach(group->{
-//            grantedAuthorities.add(new SimpleGrantedAuthority(group.getRoleName()));
-//        });
-//        return new User(appUser.getUsername(), appUser.getPassword(), grantedAuthorities);
     }
 
     /**

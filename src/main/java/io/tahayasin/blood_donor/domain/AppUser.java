@@ -1,7 +1,7 @@
 package io.tahayasin.blood_donor.domain;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.time.Period;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -58,7 +58,7 @@ public class AppUser {
     private String lastName;
 
     @Column
-    private int age;
+    private LocalDate dataOfBirth;
 
     @Column
     private String gender;
@@ -77,4 +77,9 @@ public class AppUser {
     @OneToMany(mappedBy = "recipientUser")
     private Set<BloodRequest> requests;
 
+    public int getAge() {
+        LocalDate dataToday = LocalDate.now();
+        int age = Period.between(dataOfBirth, dataToday).getYears();
+        return age;
+    }
 }

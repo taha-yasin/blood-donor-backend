@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @CrossOrigin("http://localhost:3000/")
 @RestController
@@ -56,7 +57,18 @@ public class BloodRequestController {
         return ResponseEntity.noContent().build();
     }
 
-        @GetMapping("/find-donor")
+    @PostMapping("/request")
+    public ResponseEntity<UUID> requestBlood(@RequestBody @Valid final BloodRequestDTO bloodRequestDTO) {
+
+        return new ResponseEntity<>(bloodRequestService.request(bloodRequestDTO)
+                .orElseThrow(() -> {
+                    return new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                            "ERROR: request failed");
+                }),
+                HttpStatus.CREATED);
+    }
+
+    @GetMapping("/find-donor")
     @ResponseStatus(HttpStatus.OK)
     public FindDonorDTO findDonor(@RequestParam String bloodGroup,
                                   @RequestParam String city,

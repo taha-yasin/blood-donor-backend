@@ -38,7 +38,7 @@ public class BloodRequest {
     private String requiredBloodGroup;
 
     @Column(nullable = false)
-    private String whatsAppNumber;
+    private String whatsapp;
 
     @Column(nullable = false)
     private String streetAddress;

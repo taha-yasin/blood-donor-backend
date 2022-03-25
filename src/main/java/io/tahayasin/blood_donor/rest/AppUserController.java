@@ -67,7 +67,7 @@ public class AppUserController {
 
         return new ResponseEntity<>(appUserService.signup(appUserDTO)
                 .orElseThrow(() -> {
-                    return new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    return new ResponseStatusException(HttpStatus.FORBIDDEN,
                             "User already exists");
                 }),
                 HttpStatus.ACCEPTED);
