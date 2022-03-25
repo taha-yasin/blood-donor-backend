@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
+@CrossOrigin("http://localhost:3000/")
 @RestController
 @RequestMapping(value = "/api/bloodRequests", produces = MediaType.APPLICATION_JSON_VALUE)
 public class BloodRequestController {
@@ -56,7 +56,7 @@ public class BloodRequestController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/find-donor")
+        @GetMapping("/find-donor")
     @ResponseStatus(HttpStatus.OK)
     public FindDonorDTO findDonor(@RequestParam String bloodGroup,
                                   @RequestParam String city,
@@ -67,7 +67,7 @@ public class BloodRequestController {
                 pincode,
                 pageNo,
                 10,
-                "streetAddres");
+                "streetAddress");
 
         List<DonorPageDTO> donors = page.getContent().stream().map(DonorPageDTO::new).collect(Collectors.toList());
 
