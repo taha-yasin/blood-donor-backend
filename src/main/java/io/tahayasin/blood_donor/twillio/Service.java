@@ -1,4 +1,4 @@
-package io.tahayasin.blood_donor.contact.twillio;
+package io.tahayasin.blood_donor.twillio;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

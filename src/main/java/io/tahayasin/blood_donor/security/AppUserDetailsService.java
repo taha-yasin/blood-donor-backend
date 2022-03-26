@@ -40,7 +40,7 @@ public class AppUserDetailsService implements UserDetailsService {
                 .accountExpired(false)
                 .accountLocked(false)
                 .credentialsExpired(false)
-                .disabled(false)
+                .disabled(!appUser.isEnabled())
                 .build();
     }
 

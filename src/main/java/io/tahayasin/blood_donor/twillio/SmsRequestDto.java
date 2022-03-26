@@ -1,4 +1,4 @@
-package io.tahayasin.blood_donor.contact.twillio;
+package io.tahayasin.blood_donor.twillio;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

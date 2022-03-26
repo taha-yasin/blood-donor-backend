@@ -2,15 +2,19 @@ package io.tahayasin.blood_donor.service;
 
 import io.tahayasin.blood_donor.domain.AppRole;
 import io.tahayasin.blood_donor.domain.AppUser;
+import io.tahayasin.blood_donor.domain.ConfirmationToken;
 import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.repos.AppRoleRepository;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
+import io.tahayasin.blood_donor.repos.ConfirmationTokenRepository;
 import io.tahayasin.blood_donor.security.JwtProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,19 +40,25 @@ public class AppUserService {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final HttpServletRequest request;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final EmailService emailService;
 
     public AppUserService(final AppUserRepository appUserRepository,
                           final AppRoleRepository appRoleRepository,
-                          PasswordEncoder passwordEncoder,
-                          AuthenticationManager authenticationManager,
-                          JwtProvider jwtProvider,
-                          HttpServletRequest request) {
+                          final PasswordEncoder passwordEncoder,
+                          final AuthenticationManager authenticationManager,
+                          final JwtProvider jwtProvider,
+                          final HttpServletRequest request,
+                          final ConfirmationTokenRepository confirmationTokenRepository,
+                          final EmailService emailService) {
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtProvider = jwtProvider;
         this.request = request;
+        this.confirmationTokenRepository = confirmationTokenRepository;
+        this.emailService = emailService;
     }
 
     public List<AppUserDTO> findAll() {
@@ -102,6 +112,7 @@ public class AppUserService {
         appUser.setLastName(appUserDTO.getLastName());
         appUser.setDataOfBirth(appUserDTO.getDateOfBirth());
         appUser.setGender(appUserDTO.getGender());
+        appUser.setEnabled(false);
         if (appUserDTO.getUserRoles() != null) {
             final List<AppRole> userRoles = appRoleRepository.findAllById(appUserDTO.getUserRoles());
             if (userRoles.size() != appUserDTO.getUserRoles().size()) {
@@ -131,7 +142,7 @@ public class AppUserService {
         return token;
     }
 
-    public Optional<Long> signup(final AppUserDTO appUserDTO) {
+    /*public Optional<Long> signup(final AppUserDTO appUserDTO) {
         LOGGER.info("New user attempting to signup");
         Optional<Long> userId = Optional.empty();
         if (!appUserRepository.findByUsername(appUserDTO.getUsername()).isPresent()) {
@@ -139,8 +150,47 @@ public class AppUserService {
             userId = Optional.of(create(appUserDTO));
         }
         return userId;
+    }*/
+
+    public Optional<Long> signup(final AppUserDTO appUserDTO) {
+        LOGGER.info("Attempting to signup");
+        Optional<Long> userId = Optional.empty();
+        final Long defaultUserId = -1L;
+
+        if (!appUserRepository.findByUsername(appUserDTO.getUsername()).isPresent()) {
+            LOGGER.info("Creating new user");
+            userId = Optional.of(create(appUserDTO));
+        }
+        AppUser appUser = appUserRepository.findByUsername(appUserDTO.getUsername()).get();
+        if(!appUser.isEnabled()) {
+            LOGGER.info("Sending Confirmation mail");
+            String token = UUID.randomUUID().toString();
+
+            ConfirmationToken confirmationToken = new ConfirmationToken(
+                    token,
+                    LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(15),
+                    appUser
+            );
+
+            confirmationTokenRepository.save(confirmationToken);
+
+            String link = "http://localhost:8080/api/v1/registration/confirm?token=" + token;
+            String toEmail = appUserDTO.getUsername();    //email of the user is used as the username
+            String emailBody = emailService.buildEmail(appUserDTO.getFirstName(), link);
+            emailService.send(toEmail, emailBody);
+
+            userId = Optional.of(defaultUserId);
+        }
+
+        return userId;
     }
 
+    /**
+     * Depricated: No more needed, can be safely removed
+     * @return userId of User currenly logged in.
+     */
+    @Deprecated
     public Optional<Long> getAuthenticatedUserId() {
         LOGGER.info("Getting userId of user currently logged in");
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
