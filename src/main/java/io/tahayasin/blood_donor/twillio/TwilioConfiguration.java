@@ -1,4 +1,4 @@
-package io.tahayasin.blood_donor.contact.twillio;
+package io.tahayasin.blood_donor.twillio;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -102,6 +102,7 @@ public class DonorService {
         return donor;
     }
 
+    /*
     public Long register(final DonorRegistrationDTO donorRegistrationDTO) {
         LOGGER.info("New user attempting to register as donor");
         AppUserDTO appUserDTO = donorRegistrationDTO.getAppUserDTO();
@@ -124,6 +125,62 @@ public class DonorService {
             donorDTO.setUser(appUser.get().getId());
         }
 
+        Long donorId = create(donorDTO);
+        return donorId;
+    }
+     */
+
+    /*public Long register(final DonorRegistrationDTO donorRegistrationDTO) {
+        LOGGER.info("Attempting to register as donor");
+        AppUserDTO appUserDTO = donorRegistrationDTO.getAppUserDTO();
+        DonorDTO donorDTO = donorRegistrationDTO.getDonorDTO();
+        Optional<AppRole> role = appRoleRepository.findByRoleName("ROLE_DONOR");
+
+        Optional<Long> userId = appUserService.signup(appUserDTO);
+
+        if(!userId.isPresent()) {
+            Optional<AppUser> appUser = appUserRepository.findById(userId.get());
+            appUser.get().getRoles().add(role.get());
+            donorDTO.setUser(userId.get());
+        }
+        else {
+            AppUser appUser = appUserRepository.findByUsername(appUserDTO.getUsername()).get();
+            if(appUser.getRoles().contains(role.get()))
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account with username already exist");
+            else if(!appUser.isEnabled()) {
+                throw new IllegalArgumentException("Email not confirmed, Confirm email and try again");
+            }
+
+            donorDTO.setUser(appUser.getId());
+        }
+
+        LOGGER.info("Registering donor");
+        Long donorId = create(donorDTO);
+        return donorId;
+    }*/
+
+    public Long register(final DonorRegistrationDTO donorRegistrationDTO) {
+        LOGGER.info("Attempting to register as donor");
+        AppUserDTO appUserDTO = donorRegistrationDTO.getAppUserDTO();
+        DonorDTO donorDTO = donorRegistrationDTO.getDonorDTO();
+        Optional<AppRole> role = appRoleRepository.findByRoleName("ROLE_DONOR");
+
+        Optional<Long> userId = appUserService.signup(appUserDTO);
+
+        AppUser appUser = appUserRepository.findByUsername(appUserDTO.getUsername()).get();
+        if(appUser.getRoles().contains(role.get())) {
+            if(appUser.isEnabled())
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account with username already exist");
+            else
+                return appUser.getDonor().getId();
+        }
+
+
+        appUser.getRoles().add(role.get());
+        donorDTO.setUser(appUser.getId());
+
+
+        LOGGER.info("Registering donor");
         Long donorId = create(donorDTO);
         return donorId;
     }

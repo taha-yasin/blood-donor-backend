@@ -1,4 +1,4 @@
-package io.tahayasin.blood_donor.contact.email;
+package io.tahayasin.blood_donor.service;
 
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -15,8 +15,7 @@ import javax.mail.internet.MimeMessage;
 @AllArgsConstructor
 public class EmailService {
 
-    private final static Logger LOGGER = LoggerFactory
-            .getLogger(EmailService.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
     private final JavaMailSender mailSender;
 
@@ -105,3 +104,4 @@ public class EmailService {
                 "</div></div>";
     }
 }
+
