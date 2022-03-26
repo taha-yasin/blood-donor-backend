@@ -109,6 +109,10 @@ public class AppUserService {
             }
             appUser.setRoles(userRoles.stream().collect(Collectors.toSet()));
         }
+        else {
+            Optional<AppRole> role = appRoleRepository.findByRoleName("ROLE_USER");
+            appUser.getRoles().add(role.get());
+        }
         return appUser;
     }
 
