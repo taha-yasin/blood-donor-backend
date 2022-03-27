@@ -18,6 +18,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,6 +49,7 @@ public class AppUser {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
 
@@ -62,6 +64,9 @@ public class AppUser {
 
     @Column
     private String gender;
+
+    @Column
+    private boolean enabled;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
