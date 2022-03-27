@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpServerErrorException;
 
-
+@CrossOrigin("http://localhost:3000/")
 @RestController
 @RequestMapping(value = "/api/donors", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DonorController {
