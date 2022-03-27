@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-
+@CrossOrigin("http://localhost:3000/")
 @RestController
 @RequestMapping(value = "/api/bloodRequests", produces = MediaType.APPLICATION_JSON_VALUE)
 public class BloodRequestController {
