@@ -40,6 +40,15 @@ public class BloodRequest {
     @Column(nullable = false)
     private String whatsapp;
 
+    @Column
+    private String gender;
+
+    @Column
+    private int age;
+
+    @Column
+    private int unitRequired;
+
     @Column(nullable = false)
     private String streetAddress;
 

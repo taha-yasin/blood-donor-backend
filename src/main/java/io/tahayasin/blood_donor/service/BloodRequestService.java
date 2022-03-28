@@ -84,6 +84,9 @@ public class BloodRequestService {
         bloodRequestDTO.setPatientName(bloodRequest.getPatientName());
         bloodRequestDTO.setRequiredBloodGroup(bloodRequest.getRequiredBloodGroup());
         bloodRequestDTO.setWhatsapp(bloodRequest.getWhatsapp());
+        bloodRequestDTO.setGender(bloodRequest.getGender());
+        bloodRequestDTO.setAge(bloodRequest.getAge());
+        bloodRequestDTO.setUnitRequired(bloodRequest.getUnitRequired());
         bloodRequestDTO.setStreetAddress(bloodRequest.getStreetAddress());
         bloodRequestDTO.setCity(bloodRequest.getCity());
         bloodRequestDTO.setGovernmentId(bloodRequest.getGovernmentId());
@@ -102,6 +105,9 @@ public class BloodRequestService {
         bloodRequest.setPatientName(bloodRequestDTO.getPatientName());
         bloodRequest.setRequiredBloodGroup(bloodRequestDTO.getRequiredBloodGroup());
         bloodRequest.setWhatsapp(bloodRequestDTO.getWhatsapp());
+        bloodRequest.setGender(bloodRequestDTO.getGender());
+        bloodRequest.setAge(bloodRequestDTO.getAge());
+        bloodRequest.setUnitRequired(bloodRequestDTO.getUnitRequired());
         bloodRequest.setStreetAddress(bloodRequestDTO.getStreetAddress());
         bloodRequest.setCity(bloodRequestDTO.getCity());
         bloodRequest.setGovernmentId(bloodRequestDTO.getGovernmentId());

@@ -27,6 +27,12 @@ public class BloodRequestDTO {
     @Size(max = 255)
     private String whatsapp;
 
+    private String gender;
+
+    private int age;
+
+    private int unitRequired;
+
     @NotNull
     @Size(max = 255)
     private String streetAddress;
