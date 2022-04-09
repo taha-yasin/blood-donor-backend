@@ -31,7 +31,7 @@ public class BloodRequestDTO {
 
     private int age;
 
-    private int unitRequired;
+    private int unitsRequired;
 
     @NotNull
     @Size(max = 255)

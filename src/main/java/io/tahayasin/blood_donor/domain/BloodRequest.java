@@ -47,7 +47,7 @@ public class BloodRequest {
     private int age;
 
     @Column
-    private int unitRequired;
+    private int unitsRequired;
 
     @Column(nullable = false)
     private String streetAddress;
