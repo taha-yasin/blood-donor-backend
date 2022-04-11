@@ -1,7 +1,7 @@
 package io.tahayasin.blood_donor.rest;
 
-import io.tahayasin.blood_donor.domain.AppUser;
 import io.tahayasin.blood_donor.model.AppUserDTO;
+import io.tahayasin.blood_donor.model.LoginDTO;
 import io.tahayasin.blood_donor.service.AppUserService;
 import java.util.List;
 import javax.validation.Valid;
@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
 @CrossOrigin("http://localhost:3000/")
@@ -52,12 +51,17 @@ public class AppUserController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<String> signin(@RequestBody @Valid AppUserDTO appUserDTO) {
-        return ResponseEntity.ok(appUserService.signin(appUserDTO)
-                .orElseThrow(() -> {
-                    return new ResponseStatusException(HttpStatus.FORBIDDEN,
-                            "Login Failed");
-                }));
+    public ResponseEntity<LoginDTO> signin(@RequestBody @Valid AppUserDTO appUserDTO) {
+        String token = appUserService.signin(appUserDTO).orElseThrow(() -> {
+            return new ResponseStatusException(HttpStatus.FORBIDDEN, "Login Failed");
+        });
+
+        LoginDTO loginDTO = new LoginDTO();
+        AppUserDTO user = appUserService.getByUsername(appUserDTO.getUsername());
+        loginDTO.setName(user.getFirstName() + " " + user.getLastName());
+        loginDTO.setToken(token);
+
+        return ResponseEntity.ok(loginDTO);
     }
 
     @PostMapping("/signup")
