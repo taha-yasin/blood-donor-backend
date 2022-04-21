@@ -118,7 +118,7 @@ public class AppUserService {
         appUser.setLastName(appUserDTO.getLastName());
         appUser.setDataOfBirth(appUserDTO.getDateOfBirth());
         appUser.setGender(appUserDTO.getGender());
-        appUser.setEnabled(false);
+        appUser.setEnabled(true);
         if (appUserDTO.getUserRoles() != null) {
             final List<AppRole> userRoles = appRoleRepository.findAllById(appUserDTO.getUserRoles());
             if (userRoles.size() != appUserDTO.getUserRoles().size()) {
