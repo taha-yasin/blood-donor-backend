@@ -10,6 +10,7 @@ import io.tahayasin.blood_donor.repos.AppUserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -135,6 +136,9 @@ public class AppUserService {
             try {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(appUserDTO.getUsername(), appUserDTO.getPassword()));
                 token = Optional.of(jwtProvider.createToken(appUserDTO.getUsername(), user.get().getRoles()));
+                System.out.println("User Name = " + user.get().getFirstName());
+                if(user.get().getDonor() != null)
+                    System.out.println("User Blood Group = " + user.get().getDonor().getBloodGroup());
             } catch (AuthenticationException exception) {
                 LOGGER.info("Log in failed for user {}", appUserDTO.getUsername());
             }
