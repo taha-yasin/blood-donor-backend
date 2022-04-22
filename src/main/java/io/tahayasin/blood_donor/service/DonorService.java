@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import io.tahayasin.blood_donor.twillio.SmsRequestDto;
-import io.tahayasin.blood_donor.twillio.TwilioSmsSender;
+//import io.tahayasin.blood_donor.twillio.SmsRequestDto;
+//import io.tahayasin.blood_donor.twillio.TwilioSmsSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -39,18 +39,20 @@ public class DonorService {
     private final AppRoleRepository appRoleRepository;
     private final AppUserService appUserService;
 
-    private final TwilioSmsSender twilioSmsSender;
+//    private final TwilioSmsSender twilioSmsSender;
 
     public DonorService(final DonorRepository donorRepository,
                         final AppUserRepository appUserRepository,
                         final AppRoleRepository appRoleRepository,
-                        final AppUserService appUserService,
-                        final TwilioSmsSender twilioSmsSender) {
+                        final AppUserService appUserService
+    ) {
+        //                        final TwilioSmsSender twilioSmsSender
+
         this.donorRepository = donorRepository;
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.appUserService = appUserService;
-        this.twilioSmsSender = twilioSmsSender;
+//        this.twilioSmsSender = twilioSmsSender;
     }
 
     public List<DonorDTO> findAll() {
@@ -193,8 +195,8 @@ public class DonorService {
         LOGGER.info("Registering donor");
         Long donorId = create(donorDTO);
 
-        SmsRequestDto smsRequestDto = new SmsRequestDto("+91" + donorDTO.getWhatsapp(), MESSAGE);
-        twilioSmsSender.sendSms(smsRequestDto);
+//        SmsRequestDto smsRequestDto = new SmsRequestDto("+91" + donorDTO.getWhatsapp(), MESSAGE);
+//        twilioSmsSender.sendSms(smsRequestDto);
 
         return donorId;
     }
