@@ -75,6 +75,12 @@ public class AppUserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
+    public AppUserDTO getByUsername(final String username) {
+        return appUserRepository.findByUsername(username)
+                .map(appUser -> mapToDTO(appUser, new AppUserDTO()))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
     public Long create(final AppUserDTO appUserDTO) {
         final AppUser appUser = new AppUser();
         mapToEntity(appUserDTO, appUser);
@@ -191,7 +197,7 @@ public class AppUserService {
     }
 
     /**
-     * Depricated: No more needed, can be safely removed
+     * Deprecated: No more needed, can be safely removed
      * @return userId of User currenly logged in.
      */
     @Deprecated

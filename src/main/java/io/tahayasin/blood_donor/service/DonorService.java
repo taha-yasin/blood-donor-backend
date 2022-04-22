@@ -14,10 +14,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import io.tahayasin.blood_donor.twillio.SmsRequestDto;
+import io.tahayasin.blood_donor.twillio.TwilioSmsSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -27,20 +28,29 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class DonorService {
 
+    private static final String MESSAGE = "_*Thank You! for showing interest toward noble cause.*_" + "\n\n" +
+            "We Appreciate your willingness to donate blood.\n\n" + "*As a next step:*\n" +
+            "Please confirm your email to continue your journey as a donor.\n\n" +
+            "_Ignore if already done._";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DonorService.class);
     private final DonorRepository donorRepository;
     private final AppUserRepository appUserRepository;
     private final AppRoleRepository appRoleRepository;
     private final AppUserService appUserService;
 
+    private final TwilioSmsSender twilioSmsSender;
+
     public DonorService(final DonorRepository donorRepository,
                         final AppUserRepository appUserRepository,
                         final AppRoleRepository appRoleRepository,
-                        final AppUserService appUserService) {
+                        final AppUserService appUserService,
+                        final TwilioSmsSender twilioSmsSender) {
         this.donorRepository = donorRepository;
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.appUserService = appUserService;
+        this.twilioSmsSender = twilioSmsSender;
     }
 
     public List<DonorDTO> findAll() {
@@ -182,6 +192,10 @@ public class DonorService {
 
         LOGGER.info("Registering donor");
         Long donorId = create(donorDTO);
+
+        SmsRequestDto smsRequestDto = new SmsRequestDto("+91" + donorDTO.getWhatsapp(), MESSAGE);
+        twilioSmsSender.sendSms(smsRequestDto);
+
         return donorId;
     }
 
