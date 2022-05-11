@@ -6,8 +6,8 @@ import io.tahayasin.blood_donor.domain.ConfirmationToken;
 import io.tahayasin.blood_donor.repos.AppRoleRepository;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
 import io.tahayasin.blood_donor.repos.ConfirmationTokenRepository;
-//import io.tahayasin.blood_donor.twillio.SmsRequestDto;
-//import io.tahayasin.blood_donor.twillio.TwilioSmsSender;
+import io.tahayasin.blood_donor.twillio.SmsRequestDto;
+import io.tahayasin.blood_donor.twillio.TwilioSmsSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -27,17 +27,16 @@ public class ConfirmationTokenService {
     private final AppUserRepository appUserRepository;
     private final AppRoleRepository appRoleRepository;
 
-//    private final TwilioSmsSender twilioSmsSender;
+    private final TwilioSmsSender twilioSmsSender;
 
     public ConfirmationTokenService(final ConfirmationTokenRepository confirmationTokenRepository,
                                     final AppUserRepository appUserRepository,
-                                    final AppRoleRepository appRoleRepository
-                                    ) {
-//        final TwilioSmsSender twilioSmsSender
+                                    final AppRoleRepository appRoleRepository,
+                                    final TwilioSmsSender twilioSmsSender) {
         this.confirmationTokenRepository = confirmationTokenRepository;
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
-//        this.twilioSmsSender = twilioSmsSender;
+        this.twilioSmsSender = twilioSmsSender;
     }
 
    /* public void saveConfirmationToken(ConfirmationToken token) {
@@ -87,10 +86,10 @@ public class ConfirmationTokenService {
 
         String whatsapp = appUser.getDonor().getWhatsapp();
 
-//        if(appUser.getRoles().contains(role_donor)) {
-//            SmsRequestDto smsRequestDto = new SmsRequestDto("+91" + whatsapp, MESSAGE_DONOR);
-//            twilioSmsSender.sendSms(smsRequestDto);
-//        }
+        if(appUser.getRoles().contains(role_donor)) {
+            SmsRequestDto smsRequestDto = new SmsRequestDto("+91" + whatsapp, MESSAGE_DONOR);
+            twilioSmsSender.sendSms(smsRequestDto);
+        }
 
     }
 }
