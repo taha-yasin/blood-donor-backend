@@ -21,7 +21,7 @@ import java.util.Optional;
 public class ConfirmationTokenService {
 
     private static final String MESSAGE_DONOR = "*Email Confirmed:* \nYou have been successfully registered as a donor. " +
-            "http://localhost:8080/api/appUsers/signin";
+            "http://localhost:3000/signin";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfirmationTokenService.class);
     private final ConfirmationTokenRepository confirmationTokenRepository;
