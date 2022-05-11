@@ -28,9 +28,9 @@ public class BloodDonorApplication {
                           DonorRepository donorRepository,
                           BloodRequestRepository bloodRequestRepository) {
         return args -> {
-            appRoleRepository.save(new AppRole(null, "ROLE_ADMIN", new HashSet<>()));
-            appRoleRepository.save(new AppRole(null, "ROLE_USER", new HashSet<>()));
-            appRoleRepository.save(new AppRole(null, "ROLE_DONOR", new HashSet<>()));
+//            appRoleRepository.save(new AppRole(null, "ROLE_ADMIN", new HashSet<>()));
+//            appRoleRepository.save(new AppRole(null, "ROLE_USER", new HashSet<>()));
+//            appRoleRepository.save(new AppRole(null, "ROLE_DONOR", new HashSet<>()));
         };
     }
 }

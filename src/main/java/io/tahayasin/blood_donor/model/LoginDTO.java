@@ -7,5 +7,6 @@ import lombok.Setter;
 @Setter
 public class LoginDTO {
     private String name;
+    private String bloodGroup;
     private String token;
 }

@@ -14,6 +14,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.tahayasin.blood_donor.twillio.SmsRequestDto;
+import io.tahayasin.blood_donor.twillio.TwilioSmsSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -32,20 +34,33 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class BloodRequestService {
 
+    private static final String RECIPIENT_MESSAGE = "*Your request has been successfully created* \n\n " +
+            "Thanks for believing in us. We have shared your request with donors." +
+            "We will notify you with updates, if any as soon as possible.";
+
+    private static final String DONOR_MESSAGE = "_*REQUEST ALERT*_\n\n" +
+            "You have an active blood request\n" +
+            "While we encourage to donate. your donation is solely based on your personal interest and subjected to eligibility.  \n\n" +
+            "To know more and to repond go to: http://localhost:3000/dashboard \n\n _Your response can save someone's life_\n" ;
+
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BloodRequestService.class);
     private final BloodRequestRepository bloodRequestRepository;
     private final DonorRepository donorRepository;
     private final AppUserRepository appUserRepository;
     private final AppUserService appUserService;
+    private final TwilioSmsSender twilioSmsSender;
 
     public BloodRequestService(final BloodRequestRepository bloodRequestRepository,
                                final DonorRepository donorRepository,
                                final AppUserRepository appUserRepository,
-                               final AppUserService appUserService) {
+                               final AppUserService appUserService,
+                               final TwilioSmsSender twilioSmsSender) {
         this.bloodRequestRepository = bloodRequestRepository;
         this.donorRepository = donorRepository;
         this.appUserRepository = appUserRepository;
         this.appUserService = appUserService;
+        this.twilioSmsSender = twilioSmsSender;
     }
 
     public List<BloodRequestDTO> findAll() {
@@ -155,6 +170,20 @@ public class BloodRequestService {
         bloodRequestDTO.setRecipient(appUser.getId());
         Optional<UUID> requestId = Optional.empty();
         requestId = Optional.of(create(bloodRequestDTO));
+
+        LOGGER.info("Sending whatsapp message to recipient at {}", bloodRequestDTO.getWhatsapp());
+        SmsRequestDto toRecipient = new SmsRequestDto("+91" + bloodRequestDTO.getWhatsapp(), RECIPIENT_MESSAGE);
+        twilioSmsSender.sendSms(toRecipient);
+
+
+        LOGGER.info("Sending whatsapp message to all donors");
+
+        for (Long ids :
+                bloodRequestDTO.getDonors()) {
+            Donor donor = donorRepository.findById(ids).get();
+            SmsRequestDto toDonor = new SmsRequestDto("+91" + donor.getWhatsapp(), DONOR_MESSAGE);
+            twilioSmsSender.sendSms(toDonor);
+        }
 
         return requestId;
     }
