@@ -20,7 +20,8 @@ import java.util.Optional;
 @Transactional
 public class ConfirmationTokenService {
 
-    private static final String MESSAGE_DONOR = "*Email Confirmed:* \n\nYou have been successfully registered as a donor.";
+    private static final String MESSAGE_DONOR = "*Email Confirmed:* \nYou have been successfully registered as a donor. " +
+            "http://localhost:3000/signin";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfirmationTokenService.class);
     private final ConfirmationTokenRepository confirmationTokenRepository;
@@ -87,6 +88,7 @@ public class ConfirmationTokenService {
         String whatsapp = appUser.getDonor().getWhatsapp();
 
         if(appUser.getRoles().contains(role_donor)) {
+            LOGGER.info("Sending whatsapp message to {}", whatsapp);
             SmsRequestDto smsRequestDto = new SmsRequestDto("+91" + whatsapp, MESSAGE_DONOR);
             twilioSmsSender.sendSms(smsRequestDto);
         }

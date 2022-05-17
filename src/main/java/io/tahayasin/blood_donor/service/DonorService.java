@@ -28,7 +28,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class DonorService {
 
-    private static final String MESSAGE = "_*Thank You! for showing interest toward noble cause.*_" + "\n\n" +
+    private static final String MESSAGE = "_*Thank You! for showing interest toward noble cause.*_ \n\n" +
             "We Appreciate your willingness to donate blood.\n\n" + "*As a next step:*\n" +
             "Please confirm your email to continue your journey as a donor.\n\n" +
             "_Ignore if already done._";
@@ -194,6 +194,7 @@ public class DonorService {
         LOGGER.info("Registering donor");
         Long donorId = create(donorDTO);
 
+        LOGGER.info("Sending whatsapp message to donor at {}", donorDTO.getWhatsapp());
         SmsRequestDto smsRequestDto = new SmsRequestDto("+91" + donorDTO.getWhatsapp(), MESSAGE);
         twilioSmsSender.sendSms(smsRequestDto);
 
