@@ -3,6 +3,9 @@ package io.tahayasin.blood_donor.rest;
 import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.model.LoginDTO;
 import io.tahayasin.blood_donor.service.AppUserService;
+
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -59,6 +62,12 @@ public class AppUserController {
         LoginDTO loginDTO = new LoginDTO();
         AppUserDTO user = appUserService.getByUsername(appUserDTO.getUsername());
         loginDTO.setName(user.getFirstName() + " " + user.getLastName());
+        loginDTO.setEmail(user.getUsername());
+        loginDTO.setAddress(user.getState() + ", " + user.getCity());
+        loginDTO.setMobile(user.getMobile());
+        loginDTO.setBloodGroup(user.getBloodGroup());
+        loginDTO.setAge(Period.between(user.getDateOfBirth(), LocalDate.now()).getYears());
+
         loginDTO.setToken(token);
 
         return ResponseEntity.ok(loginDTO);

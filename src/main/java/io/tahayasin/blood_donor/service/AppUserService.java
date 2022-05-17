@@ -106,6 +106,28 @@ public class AppUserService {
         appUserDTO.setLastName(appUser.getLastName());
         appUserDTO.setDateOfBirth(appUser.getDataOfBirth());
         appUserDTO.setGender(appUser.getGender());
+        if(appUser.getDonor() != null)
+        {
+            appUserDTO.setBloodGroup(appUser.getDonor().getBloodGroup());
+            appUserDTO.setState(appUser.getDonor().getState());
+            appUserDTO.setCity(appUser.getDonor().getCity());
+            appUserDTO.setMobile(appUser.getDonor().getWhatsapp());
+        }
+        else{
+            appUserDTO.setBloodGroup(null);
+            appUserDTO.setState(appUser.getRequests().stream()
+                    .map(state -> state.getStreetAddress())
+                    .limit(1)
+                    .collect(Collectors.joining()));
+            appUserDTO.setCity(appUser.getRequests().stream()
+                    .map(city -> city.getCity())
+                    .limit(1)
+                    .collect(Collectors.joining()));
+            appUserDTO.setMobile(appUser.getRequests().stream()
+                    .map(mobile -> mobile.getWhatsapp())
+                    .limit(1)
+                    .collect(Collectors.joining()));
+        }
         appUserDTO.setUserRoles(appUser.getRoles() == null ? null : appUser.getRoles().stream()
                 .map(appRole -> appRole.getId())
                 .collect(Collectors.toList()));
@@ -142,9 +164,6 @@ public class AppUserService {
             try {
                 authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(appUserDTO.getUsername(), appUserDTO.getPassword()));
                 token = Optional.of(jwtProvider.createToken(appUserDTO.getUsername(), user.get().getRoles()));
-                System.out.println("User Name = " + user.get().getFirstName());
-                if(user.get().getDonor() != null)
-                    System.out.println("User Blood Group = " + user.get().getDonor().getBloodGroup());
             } catch (AuthenticationException exception) {
                 LOGGER.info("Log in failed for user {}", appUserDTO.getUsername());
             }
