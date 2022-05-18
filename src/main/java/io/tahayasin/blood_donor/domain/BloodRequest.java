@@ -73,6 +73,7 @@ public class BloodRequest {
             joinColumns = @JoinColumn(name = "request_id"),
             inverseJoinColumns = @JoinColumn(name = "donor_id")
     )
+    @JsonIgnore
     private Set<Donor> donors;
 
     @JsonIgnore

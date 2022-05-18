@@ -2,12 +2,14 @@ package io.tahayasin.blood_donor.service;
 
 import io.tahayasin.blood_donor.domain.AppRole;
 import io.tahayasin.blood_donor.domain.AppUser;
+import io.tahayasin.blood_donor.domain.BloodRequest;
 import io.tahayasin.blood_donor.domain.Donor;
 import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.model.DonorDTO;
 import io.tahayasin.blood_donor.model.DonorRegistrationDTO;
 import io.tahayasin.blood_donor.repos.AppRoleRepository;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
+import io.tahayasin.blood_donor.repos.BloodRequestRepository;
 import io.tahayasin.blood_donor.repos.DonorRepository;
 
 import java.util.List;
@@ -19,6 +21,8 @@ import io.tahayasin.blood_donor.twillio.TwilioSmsSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,6 +42,7 @@ public class DonorService {
     private final AppUserRepository appUserRepository;
     private final AppRoleRepository appRoleRepository;
     private final AppUserService appUserService;
+    private final BloodRequestRepository bloodRequestRepository;
 
     private final TwilioSmsSender twilioSmsSender;
 
@@ -45,12 +50,14 @@ public class DonorService {
                         final AppUserRepository appUserRepository,
                         final AppRoleRepository appRoleRepository,
                         final AppUserService appUserService,
+                        final BloodRequestRepository bloodRequestRepository,
                         final TwilioSmsSender twilioSmsSender) {
 
         this.donorRepository = donorRepository;
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.appUserService = appUserService;
+        this.bloodRequestRepository = bloodRequestRepository;
         this.twilioSmsSender = twilioSmsSender;
     }
 
@@ -199,6 +206,13 @@ public class DonorService {
         twilioSmsSender.sendSms(smsRequestDto);
 
         return donorId;
+    }
+
+    public List<BloodRequest> receivedRequests() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
+        LOGGER.info("Searching for received requests...");
+        return bloodRequestRepository.findAllByDonors(appUser.getDonor());
     }
 
 }

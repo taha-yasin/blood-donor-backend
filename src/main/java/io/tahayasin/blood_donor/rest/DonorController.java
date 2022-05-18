@@ -1,5 +1,6 @@
 package io.tahayasin.blood_donor.rest;
 
+import io.tahayasin.blood_donor.domain.BloodRequest;
 import io.tahayasin.blood_donor.domain.Donor;
 import io.tahayasin.blood_donor.model.DonorDTO;
 import io.tahayasin.blood_donor.model.DonorRegistrationDTO;
@@ -59,4 +60,8 @@ public class DonorController {
         return new ResponseEntity<>(donorService.register(donorRegistrationDTO), HttpStatus.CREATED);
     }
 
+    @GetMapping("/requests")
+    public ResponseEntity<List<BloodRequest>> receivedRequests() {
+        return ResponseEntity.ok(donorService.receivedRequests());
+    }
 }
