@@ -35,4 +35,11 @@ public class AppUserDTO {
 
     private List<Long> userRoles;
 
+    private String bloodGroup;
+
+    private String state;
+
+    private String city;
+
+    private String mobile;
 }

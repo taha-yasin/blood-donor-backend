@@ -41,7 +41,6 @@ public class BloodRequestDTO {
     @Size(max = 255)
     private String city;
 
-    @NotNull
     @Size(max = 255)
     private String governmentId;
 

@@ -10,6 +10,7 @@ import io.tahayasin.blood_donor.repos.AppUserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
@@ -105,6 +106,28 @@ public class AppUserService {
         appUserDTO.setLastName(appUser.getLastName());
         appUserDTO.setDateOfBirth(appUser.getDataOfBirth());
         appUserDTO.setGender(appUser.getGender());
+        if(appUser.getDonor() != null)
+        {
+            appUserDTO.setBloodGroup(appUser.getDonor().getBloodGroup());
+            appUserDTO.setState(appUser.getDonor().getState());
+            appUserDTO.setCity(appUser.getDonor().getCity());
+            appUserDTO.setMobile(appUser.getDonor().getWhatsapp());
+        }
+        else{
+            appUserDTO.setBloodGroup(null);
+            appUserDTO.setState(appUser.getRequests().stream()
+                    .map(state -> state.getStreetAddress())
+                    .limit(1)
+                    .collect(Collectors.joining()));
+            appUserDTO.setCity(appUser.getRequests().stream()
+                    .map(city -> city.getCity())
+                    .limit(1)
+                    .collect(Collectors.joining()));
+            appUserDTO.setMobile(appUser.getRequests().stream()
+                    .map(mobile -> mobile.getWhatsapp())
+                    .limit(1)
+                    .collect(Collectors.joining()));
+        }
         appUserDTO.setUserRoles(appUser.getRoles() == null ? null : appUser.getRoles().stream()
                 .map(appRole -> appRole.getId())
                 .collect(Collectors.toList()));
