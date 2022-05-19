@@ -2,6 +2,7 @@ package io.tahayasin.blood_donor.service;
 
 import io.tahayasin.blood_donor.domain.AppRole;
 import io.tahayasin.blood_donor.domain.AppUser;
+import io.tahayasin.blood_donor.domain.BloodRequest;
 import io.tahayasin.blood_donor.domain.ConfirmationToken;
 import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.repos.AppRoleRepository;
@@ -10,11 +11,11 @@ import io.tahayasin.blood_donor.repos.AppUserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
+import io.tahayasin.blood_donor.repos.BloodRequestRepository;
 import io.tahayasin.blood_donor.repos.ConfirmationTokenRepository;
 import io.tahayasin.blood_donor.security.JwtProvider;
 import org.slf4j.Logger;
@@ -23,7 +24,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +46,7 @@ public class AppUserService {
     private final HttpServletRequest request;
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final EmailService emailService;
+    private final BloodRequestRepository bloodRequestRepository;
 
     public AppUserService(final AppUserRepository appUserRepository,
                           final AppRoleRepository appRoleRepository,
@@ -51,7 +55,8 @@ public class AppUserService {
                           final JwtProvider jwtProvider,
                           final HttpServletRequest request,
                           final ConfirmationTokenRepository confirmationTokenRepository,
-                          final EmailService emailService) {
+                          final EmailService emailService,
+                          final BloodRequestRepository bloodRequestRepository) {
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -60,6 +65,7 @@ public class AppUserService {
         this.request = request;
         this.confirmationTokenRepository = confirmationTokenRepository;
         this.emailService = emailService;
+        this.bloodRequestRepository = bloodRequestRepository;
     }
 
     public List<AppUserDTO> findAll() {
@@ -234,6 +240,13 @@ public class AppUserService {
         userId = Optional.of(appUserRepository.findIdByName(username));
 
         return userId;
+    }
+
+    public List<BloodRequest> sentRequests() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
+        LOGGER.info("Searching for sent requests...");
+        return bloodRequestRepository.findAllByRecipientUser(appUser);
     }
 
 }
