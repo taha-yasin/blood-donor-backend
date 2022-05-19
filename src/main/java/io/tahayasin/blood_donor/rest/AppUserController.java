@@ -1,5 +1,6 @@
 package io.tahayasin.blood_donor.rest;
 
+import io.tahayasin.blood_donor.domain.BloodRequest;
 import io.tahayasin.blood_donor.model.AppUserDTO;
 import io.tahayasin.blood_donor.model.LoginDTO;
 import io.tahayasin.blood_donor.service.AppUserService;
@@ -84,6 +85,11 @@ public class AppUserController {
                             "User already exists");
                 }),
                 HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/requests")
+    public ResponseEntity<List<BloodRequest>> sentRequests() {
+        return ResponseEntity.ok(appUserService.sentRequests());
     }
 
 }

@@ -1,5 +1,6 @@
 package io.tahayasin.blood_donor.repos;
 
+import io.tahayasin.blood_donor.domain.AppUser;
 import io.tahayasin.blood_donor.domain.BloodRequest;
 
 import java.util.List;
@@ -12,4 +13,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BloodRequestRepository extends JpaRepository<BloodRequest, UUID> {
     List<BloodRequest> findAllByDonors(Donor donor);
+    List<BloodRequest> findAllByRecipientUser(AppUser appUser);
 }
