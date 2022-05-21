@@ -9,15 +9,14 @@ import io.tahayasin.blood_donor.repos.AppRoleRepository;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import io.tahayasin.blood_donor.repos.BloodRequestRepository;
 import io.tahayasin.blood_donor.repos.ConfirmationTokenRepository;
 import io.tahayasin.blood_donor.security.JwtProvider;
+import io.tahayasin.blood_donor.security.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +46,7 @@ public class AppUserService {
     private final ConfirmationTokenRepository confirmationTokenRepository;
     private final EmailService emailService;
     private final BloodRequestRepository bloodRequestRepository;
+    private final Validator validator;
 
     public AppUserService(final AppUserRepository appUserRepository,
                           final AppRoleRepository appRoleRepository,
@@ -56,7 +56,8 @@ public class AppUserService {
                           final HttpServletRequest request,
                           final ConfirmationTokenRepository confirmationTokenRepository,
                           final EmailService emailService,
-                          final BloodRequestRepository bloodRequestRepository) {
+                          final BloodRequestRepository bloodRequestRepository, 
+                          final Validator validator) {
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -66,6 +67,7 @@ public class AppUserService {
         this.confirmationTokenRepository = confirmationTokenRepository;
         this.emailService = emailService;
         this.bloodRequestRepository = bloodRequestRepository;
+        this.validator = validator;
     }
 
     public List<AppUserDTO> findAll() {
@@ -163,6 +165,20 @@ public class AppUserService {
     }
 
     public Optional<String> signin(final AppUserDTO appUserDTO) {
+
+        LOGGER.info("Validating new user username and password");
+
+        if(!validator.ValidateEmail(appUserDTO.getUsername())){
+            LOGGER.info("Log in failed for user {} due to invalid username", appUserDTO.getUsername());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid username");
+        }
+
+        Map<String, String> pass_msg = new HashMap<>();
+        if(!validator.ValidatePassword(appUserDTO.getPassword(), pass_msg)){
+            LOGGER.info("Log in failed, {}", pass_msg.get("errorMsg"));
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, pass_msg.get("errorMsg"));
+        }
+
         LOGGER.info("New user attempting to signin");
         Optional<String> token = Optional.empty();
         Optional<AppUser> user = appUserRepository.findByUsername(appUserDTO.getUsername());
@@ -188,6 +204,25 @@ public class AppUserService {
     }*/
 
     public Optional<Long> signup(final AppUserDTO appUserDTO) {
+
+        LOGGER.info("Validating new user to create account");
+
+        if(!validator.ValidateName(appUserDTO.getFirstName(), appUserDTO.getLastName())){
+            LOGGER.info("Sign in failed for user {} due to invalid first and last name", appUserDTO.getUsername());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid first or last name");
+        }
+
+        if(!validator.ValidateEmail(appUserDTO.getUsername())){
+            LOGGER.info("Sign in failed for user {} due to invalid username", appUserDTO.getUsername());
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Invalid username");
+        }
+
+        Map<String, String> pass_msg = new HashMap<>();
+        if(!validator.ValidatePassword(appUserDTO.getPassword(), pass_msg)){
+            LOGGER.info("Sign in failed, {}", pass_msg.get("errorMsg"));
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, pass_msg.get("errorMsg"));
+        }
+
         LOGGER.info("Attempting to signup");
         Optional<Long> userId = Optional.empty();
         final Long defaultUserId = -1L;
