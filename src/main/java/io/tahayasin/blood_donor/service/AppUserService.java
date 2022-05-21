@@ -56,7 +56,8 @@ public class AppUserService {
                           final HttpServletRequest request,
                           final ConfirmationTokenRepository confirmationTokenRepository,
                           final EmailService emailService,
-                          final BloodRequestRepository bloodRequestRepository, Validator validator) {
+                          final BloodRequestRepository bloodRequestRepository, 
+                          final Validator validator) {
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.passwordEncoder = passwordEncoder;
