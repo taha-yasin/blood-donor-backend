@@ -129,7 +129,7 @@ public class BloodRequestService {
 //        bloodRequest.setGeneratedAt(bloodRequestDTO.getGeneratedAt());
         bloodRequest.setGeneratedAt(LocalDateTime.now());
 //        bloodRequest.setStatus(bloodRequestDTO.getStatus());
-        bloodRequest.setStatus("PENDING: waiting for donor's response");
+        bloodRequest.setStatus("PENDING");
 //        bloodRequest.setIsActive(bloodRequestDTO.getIsActive());
         bloodRequest.setIsActive(true);
         if (bloodRequestDTO.getDonors() != null) {
@@ -186,6 +186,22 @@ public class BloodRequestService {
         }
 
         return requestId;
+    }
+
+    public void acceptRequest(UUID requestId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
+        LOGGER.info("Changing request status to ACCEPTED");
+
+        bloodRequestRepository.updateStatus(requestId, "ACCEPTED");
+    }
+
+    public void declineRequest(UUID requestId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
+        LOGGER.info("Changing request status to DECLINED");
+
+        bloodRequestRepository.updateStatus(requestId, "DECLINED");
     }
 
 }
