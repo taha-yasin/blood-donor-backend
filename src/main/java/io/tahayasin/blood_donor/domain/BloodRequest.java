@@ -67,6 +67,7 @@ public class BloodRequest {
     @JsonIgnore
     private Set<Donor> donors;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "bloodRequest")
     private Set<Donation> donations;
 

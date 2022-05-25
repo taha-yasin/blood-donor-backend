@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,9 +58,11 @@ public class Donor {
     @JoinColumn(name = "user_id")
     private AppUser user;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "donors")
     private Set<BloodRequest> bloodRequests;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "donor")
     private Set<Donation> donations;
 
