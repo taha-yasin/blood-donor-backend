@@ -9,9 +9,7 @@ import io.tahayasin.blood_donor.repos.BloodRequestRepository;
 import io.tahayasin.blood_donor.repos.DonorRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import io.tahayasin.blood_donor.twillio.SmsRequestDto;
@@ -154,7 +152,31 @@ public class BloodRequestService {
                                  int pageSize,
                                  String sortBy) {
         Pageable pageOfDonors = PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending());
-        Page<Donor> donors = donorRepository.findByBloodGroupAndCityOrPincode(bloodGroup,
+
+        LOGGER.info("Selecting donor blood group list for {} blood group", bloodGroup);
+
+        List<String> bloodGroupList = new ArrayList<>();
+
+        switch(bloodGroup){
+            case "A ": Collections.addAll(bloodGroupList,"A+", "A-", "O+", "O-");
+                        break;
+            case "A-": Collections.addAll(bloodGroupList,"A-", "O-");
+                        break;
+            case "B ": Collections.addAll(bloodGroupList,"B+", "B-", "O+", "O-");
+                        break;
+            case "B-": Collections.addAll(bloodGroupList,"B-","O-");
+                        break;
+            case "AB ": Collections.addAll(bloodGroupList,"AB+", "AB-", "A+", "A-", "B+", "B-", "O+", "O-");
+                        break;
+            case "AB-": Collections.addAll(bloodGroupList,"AB-", "A-", "B-", "O-");
+                        break;
+            case "O ": Collections.addAll(bloodGroupList,"O+", "O-");
+                        break;
+            case "O-": Collections.addAll(bloodGroupList,"O-");
+                        break;
+        }
+
+        Page<Donor> donors = donorRepository.findByBloodGroupAndCityOrPincode(bloodGroupList,
                 city,
                 pincode,
                 pageOfDonors);
