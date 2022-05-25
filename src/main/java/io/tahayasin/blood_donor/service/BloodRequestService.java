@@ -2,10 +2,12 @@ package io.tahayasin.blood_donor.service;
 
 import io.tahayasin.blood_donor.domain.AppUser;
 import io.tahayasin.blood_donor.domain.BloodRequest;
+import io.tahayasin.blood_donor.domain.Donation;
 import io.tahayasin.blood_donor.domain.Donor;
 import io.tahayasin.blood_donor.model.BloodRequestDTO;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
 import io.tahayasin.blood_donor.repos.BloodRequestRepository;
+import io.tahayasin.blood_donor.repos.DonationRepository;
 import io.tahayasin.blood_donor.repos.DonorRepository;
 
 import java.time.LocalDateTime;
@@ -45,17 +47,20 @@ public class BloodRequestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BloodRequestService.class);
     private final BloodRequestRepository bloodRequestRepository;
     private final DonorRepository donorRepository;
+    private final DonationRepository donationRepository;
     private final AppUserRepository appUserRepository;
     private final AppUserService appUserService;
     private final TwilioSmsSender twilioSmsSender;
 
     public BloodRequestService(final BloodRequestRepository bloodRequestRepository,
                                final DonorRepository donorRepository,
+                               DonationRepository donationRepository,
                                final AppUserRepository appUserRepository,
                                final AppUserService appUserService,
                                final TwilioSmsSender twilioSmsSender) {
         this.bloodRequestRepository = bloodRequestRepository;
         this.donorRepository = donorRepository;
+        this.donationRepository = donationRepository;
         this.appUserRepository = appUserRepository;
         this.appUserService = appUserService;
         this.twilioSmsSender = twilioSmsSender;
@@ -127,7 +132,7 @@ public class BloodRequestService {
 //        bloodRequest.setGeneratedAt(bloodRequestDTO.getGeneratedAt());
         bloodRequest.setGeneratedAt(LocalDateTime.now());
 //        bloodRequest.setStatus(bloodRequestDTO.getStatus());
-        bloodRequest.setStatus("PENDING: waiting for donor's response");
+        bloodRequest.setStatus("PENDING");
 //        bloodRequest.setIsActive(bloodRequestDTO.getIsActive());
         bloodRequest.setIsActive(true);
         if (bloodRequestDTO.getDonors() != null) {
@@ -136,6 +141,18 @@ public class BloodRequestService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "one of donationRequests not found");
             }
             bloodRequest.setDonors(donors.stream().collect(Collectors.toSet()));
+
+            Set<Donation> donations = new HashSet<>();
+            donors.stream().forEach(donor -> {
+                Donation donation = new Donation();
+                donation.setBloodRequest(bloodRequest);
+                donation.setDonor(donor);
+                donation.setStatus("PENDING");
+                donationRepository.save(donation);
+                donations.add(donation);
+            });
+            bloodRequest.setDonations(donations);
+
         }
         if (bloodRequestDTO.getRecipient() != null && (bloodRequest.getRecipientUser() == null || !bloodRequest.getRecipientUser().getId().equals(bloodRequestDTO.getRecipient()))) {
             final AppUser recipient = appUserRepository.findById(bloodRequestDTO.getRecipient())
@@ -208,6 +225,22 @@ public class BloodRequestService {
         }
 
         return requestId;
+    }
+
+    public void acceptRequest(UUID requestId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
+        LOGGER.info("Changing request status to ACCEPTED");
+
+        bloodRequestRepository.updateStatus(requestId, "ACCEPTED");
+    }
+
+    public void declineRequest(UUID requestId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
+        LOGGER.info("Changing request status to DECLINED");
+
+        bloodRequestRepository.updateStatus(requestId, "DECLINED");
     }
 
 }

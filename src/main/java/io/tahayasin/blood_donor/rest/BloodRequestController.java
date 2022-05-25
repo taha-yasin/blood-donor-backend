@@ -90,4 +90,13 @@ public class BloodRequestController {
         return  donorsPage;
     }
 
+    @PostMapping("/accept/{requestId}")
+    public void acceptRequest(@PathVariable final UUID requestId) {
+        bloodRequestService.acceptRequest(requestId);
+    }
+
+    @PostMapping("/decline/{requestId}")
+    public void declineRequest(@PathVariable final UUID requestId) {
+        bloodRequestService.declineRequest(requestId);
+    }
 }
