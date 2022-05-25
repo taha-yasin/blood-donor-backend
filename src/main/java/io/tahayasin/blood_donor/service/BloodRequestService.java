@@ -2,16 +2,16 @@ package io.tahayasin.blood_donor.service;
 
 import io.tahayasin.blood_donor.domain.AppUser;
 import io.tahayasin.blood_donor.domain.BloodRequest;
+import io.tahayasin.blood_donor.domain.Donation;
 import io.tahayasin.blood_donor.domain.Donor;
 import io.tahayasin.blood_donor.model.BloodRequestDTO;
 import io.tahayasin.blood_donor.repos.AppUserRepository;
 import io.tahayasin.blood_donor.repos.BloodRequestRepository;
+import io.tahayasin.blood_donor.repos.DonationRepository;
 import io.tahayasin.blood_donor.repos.DonorRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import io.tahayasin.blood_donor.twillio.SmsRequestDto;
@@ -47,17 +47,20 @@ public class BloodRequestService {
     private static final Logger LOGGER = LoggerFactory.getLogger(BloodRequestService.class);
     private final BloodRequestRepository bloodRequestRepository;
     private final DonorRepository donorRepository;
+    private final DonationRepository donationRepository;
     private final AppUserRepository appUserRepository;
     private final AppUserService appUserService;
     private final TwilioSmsSender twilioSmsSender;
 
     public BloodRequestService(final BloodRequestRepository bloodRequestRepository,
                                final DonorRepository donorRepository,
+                               DonationRepository donationRepository,
                                final AppUserRepository appUserRepository,
                                final AppUserService appUserService,
                                final TwilioSmsSender twilioSmsSender) {
         this.bloodRequestRepository = bloodRequestRepository;
         this.donorRepository = donorRepository;
+        this.donationRepository = donationRepository;
         this.appUserRepository = appUserRepository;
         this.appUserService = appUserService;
         this.twilioSmsSender = twilioSmsSender;
@@ -138,6 +141,18 @@ public class BloodRequestService {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "one of donationRequests not found");
             }
             bloodRequest.setDonors(donors.stream().collect(Collectors.toSet()));
+
+            Set<Donation> donations = new HashSet<>();
+            donors.stream().forEach(donor -> {
+                Donation donation = new Donation();
+                donation.setBloodRequest(bloodRequest);
+                donation.setDonor(donor);
+                donation.setStatus("PENDING");
+                donationRepository.save(donation);
+                donations.add(donation);
+            });
+            bloodRequest.setDonations(donations);
+
         }
         if (bloodRequestDTO.getRecipient() != null && (bloodRequest.getRecipientUser() == null || !bloodRequest.getRecipientUser().getId().equals(bloodRequestDTO.getRecipient()))) {
             final AppUser recipient = appUserRepository.findById(bloodRequestDTO.getRecipient())
