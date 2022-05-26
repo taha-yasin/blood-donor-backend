@@ -79,7 +79,7 @@ public class AppUser {
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Donor donor;
 
-    @OneToMany(mappedBy = "recipientUser")
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "recipientUser")
     private Set<BloodRequest> requests;
 
     public int getAge() {

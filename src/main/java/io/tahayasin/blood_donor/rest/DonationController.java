@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.tahayasin.blood_donor.model.DonationDTO;
 import io.tahayasin.blood_donor.service.DonationService;
 import java.util.List;
+import java.util.UUID;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,6 +57,17 @@ public class DonationController {
     public ResponseEntity<Void> deleteDonation(@PathVariable final Long donationId) {
         donationService.delete(donationId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/requests")
+    public ResponseEntity<List<DonationDTO>> sentRequest() {
+        return ResponseEntity.ok(donationService.sentRequest());
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Void> updateStatus(@RequestBody /*UUID requestId, */String message) {
+        donationService.updateStatus(/*requestId, */message);
+        return ResponseEntity.ok().build();
     }
 
 }

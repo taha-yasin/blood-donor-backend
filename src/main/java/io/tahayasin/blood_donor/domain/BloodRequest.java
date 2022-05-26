@@ -72,7 +72,8 @@ public class BloodRequest {
     private Set<Donation> donations;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "recipient_id")
     private AppUser recipientUser;
 
