@@ -15,6 +15,11 @@ public class DonationDTO {
     @Size(max = 255)
     private String status;
 
+    private String donorName;
+    private String bloodGroup;
+    private String gender;
+    private String streetAddress;
+
     private UUID bloodRequest;
 
     private Long donor;

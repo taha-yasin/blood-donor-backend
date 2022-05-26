@@ -1,15 +1,23 @@
 package io.tahayasin.blood_donor.service;
 
+import io.tahayasin.blood_donor.domain.AppUser;
 import io.tahayasin.blood_donor.domain.BloodRequest;
 import io.tahayasin.blood_donor.domain.Donation;
 import io.tahayasin.blood_donor.domain.Donor;
 import io.tahayasin.blood_donor.model.DonationDTO;
+import io.tahayasin.blood_donor.repos.AppUserRepository;
 import io.tahayasin.blood_donor.repos.BloodRequestRepository;
 import io.tahayasin.blood_donor.repos.DonationRepository;
 import io.tahayasin.blood_donor.repos.DonorRepository;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,13 +28,16 @@ public class DonationService {
     private final DonationRepository donationRepository;
     private final BloodRequestRepository bloodRequestRepository;
     private final DonorRepository donorRepository;
+    private final AppUserRepository appUserRepository;
 
     public DonationService(final DonationRepository donationRepository,
                            final BloodRequestRepository bloodRequestRepository,
-                           final DonorRepository donorRepository) {
+                           final DonorRepository donorRepository,
+                           final AppUserRepository appUserRepository) {
         this.donationRepository = donationRepository;
         this.bloodRequestRepository = bloodRequestRepository;
         this.donorRepository = donorRepository;
+        this.appUserRepository = appUserRepository;
     }
 
     public List<DonationDTO> findAll() {
@@ -80,6 +91,37 @@ public class DonationService {
             donation.setDonor(donor);
         }
         return donation;
+    }
+
+    public void updateStatus(/*UUID requestId, */String message) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
+        Donor donor = appUser.getDonor();
+        //BloodRequest request = bloodRequestRepository.findById(requestId).get();
+        donationRepository.updateStatus(/*request, */donor, message);
+    }
+
+    public List<DonationDTO> sentRequest() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
+        Set<BloodRequest> requests = appUser.getRequests();
+
+        List<DonationDTO> list = new ArrayList<>();
+        requests.stream().forEach(request -> {
+            List<Donation> donations = donationRepository.findAllByBloodRequest(request);
+            donations.stream().forEach(donation -> {
+                DonationDTO donationDTO = new DonationDTO();
+                donationDTO.setDonorName(donation.getDonor().getUser().getFirstName() + " " +
+                        donation.getDonor().getUser().getLastName());
+                donationDTO.setBloodGroup(donation.getDonor().getBloodGroup());
+                donationDTO.setGender(donation.getDonor().getUser().getGender());
+                donationDTO.setStatus(donation.getStatus());
+                donationDTO.setStreetAddress(donation.getDonor().getStreetAddress());
+                list.add(donationDTO);
+            });
+        });
+
+        return list;
     }
 
 }

@@ -1,14 +1,7 @@
 package io.tahayasin.blood_donor.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,7 +32,8 @@ public class Donation {
     @JoinColumn(name = "blood_request_id")
     private BloodRequest bloodRequest;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    //@ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "donor_id")
     private Donor donor;
 
