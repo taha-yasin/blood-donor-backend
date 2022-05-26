@@ -93,12 +93,13 @@ public class DonationService {
         return donation;
     }
 
-    public void updateStatus(/*UUID requestId, */String message) {
+    public void updateStatus(String requestId, String message) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         AppUser appUser = appUserRepository.findByUsername(authentication.getName()).get();
         Donor donor = appUser.getDonor();
-        //BloodRequest request = bloodRequestRepository.findById(requestId).get();
-        donationRepository.updateStatus(/*request, */donor, message);
+        UUID reqId = UUID. fromString(requestId);
+        BloodRequest request = bloodRequestRepository.findById(reqId).get();
+        donationRepository.updateStatus(request, donor, message);
     }
 
     public List<DonationDTO> sentRequest() {

@@ -118,6 +118,7 @@ public class AppUserService {
         {
             appUserDTO.setBloodGroup(appUser.getDonor().getBloodGroup());
             appUserDTO.setState(appUser.getDonor().getState());
+            appUserDTO.setStreetAddress(appUser.getDonor().getStreetAddress());
             appUserDTO.setCity(appUser.getDonor().getCity());
             appUserDTO.setMobile(appUser.getDonor().getWhatsapp());
         }
