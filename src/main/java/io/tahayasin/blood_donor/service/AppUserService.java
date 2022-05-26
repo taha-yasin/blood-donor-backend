@@ -150,7 +150,7 @@ public class AppUserService {
         appUser.setLastName(appUserDTO.getLastName());
         appUser.setDataOfBirth(appUserDTO.getDateOfBirth());
         appUser.setGender(appUserDTO.getGender());
-        appUser.setEnabled(true); //TODO: change to false
+        appUser.setEnabled(false); //TODO: change to false to enable email verification
         if (appUserDTO.getUserRoles() != null) {
             final List<AppRole> userRoles = appRoleRepository.findAllById(appUserDTO.getUserRoles());
             if (userRoles.size() != appUserDTO.getUserRoles().size()) {
@@ -246,7 +246,8 @@ public class AppUserService {
 
             confirmationTokenRepository.save(confirmationToken);
 
-            String link = "http://localhost:8080/api/v1/registration/confirm?token=" + token;
+//            String link = "http://localhost:8080/api/v1/registration/confirm?token=" + token;
+            String link = "http://localhost:3000/registration/verification/" + token;
             String toEmail = appUserDTO.getUsername();    //email of the user is used as the username
             String emailBody = emailService.buildEmail(appUserDTO.getFirstName(), link);
             emailService.send(toEmail, emailBody);
