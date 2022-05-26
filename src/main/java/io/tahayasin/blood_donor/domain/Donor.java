@@ -63,7 +63,7 @@ public class Donor {
     private Set<BloodRequest> bloodRequests;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL,mappedBy = "donor")
+    @OneToMany(mappedBy = "donor")
     private Set<Donation> donations;
 
 }
