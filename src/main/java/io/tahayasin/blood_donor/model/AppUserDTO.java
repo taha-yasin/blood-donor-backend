@@ -37,6 +37,8 @@ public class AppUserDTO {
 
     private String bloodGroup;
 
+    private String streetAddress;
+
     private String state;
 
     private String city;

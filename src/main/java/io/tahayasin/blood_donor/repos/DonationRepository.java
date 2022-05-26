@@ -20,11 +20,11 @@ public interface DonationRepository extends JpaRepository<Donation, Long> {
     @Modifying
     @Query("UPDATE Donation d " +
             "SET d.status = ?2 " +
-            "WHERE d.donor = ?1"
-            //"WHERE d.bloodRequest = ?1" +
-            //"AND d.donor = ?2"
+            //"WHERE d.donor = ?1"
+            "WHERE d.bloodRequest = ?1" +
+            "AND d.donor = ?2"
     )
-    int updateStatus(/*BloodRequest request, */Donor donor, String message);
+    int updateStatus(BloodRequest request, Donor donor, String message);
 
 
 }

@@ -64,7 +64,7 @@ public class AppUserController {
         AppUserDTO user = appUserService.getByUsername(appUserDTO.getUsername());
         loginDTO.setName(user.getFirstName() + " " + user.getLastName());
         loginDTO.setEmail(user.getUsername());
-        loginDTO.setAddress(user.getState() + ", " + user.getCity());
+        loginDTO.setAddress(user.getStreetAddress() + ", " + user.getState() + ", " + user.getCity());
         loginDTO.setMobile(user.getMobile());
         loginDTO.setBloodGroup(user.getBloodGroup());
         loginDTO.setAge(Period.between(user.getDateOfBirth(), LocalDate.now()).getYears());
